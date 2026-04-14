@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hanoi CleanCity - Bản Đồ Tương Tác</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary": "#ffffff",
+              "tertiary-container": "#85675c",
+              "tertiary-fixed-dim": "#e4beb2",
+              "surface": "#f5fced",
+              "surface-container-low": "#eff6e7",
+              "outline-variant": "#bfcaba",
+              "secondary": "#00639a",
+              "on-primary-fixed-variant": "#0c5216",
+              "primary-fixed": "#acf4a4",
+              "on-error": "#ffffff",
+              "on-surface": "#171d14",
+              "on-secondary-fixed-variant": "#004a75",
+              "on-tertiary-container": "#ffeee8",
+              "on-secondary-fixed": "#001d32",
+              "error-container": "#ffdad6",
+              "surface-container": "#e9f0e1",
+              "on-background": "#171d14",
+              "inverse-primary": "#91d78a",
+              "tertiary-fixed": "#ffdbce",
+              "tertiary": "#6b4f45",
+              "surface-tint": "#2a6b2c",
+              "secondary-container": "#51b2fe",
+              "on-tertiary-fixed-variant": "#5b4137",
+              "on-tertiary": "#ffffff",
+              "outline": "#707a6c",
+              "on-primary-container": "#cbffc2",
+              "surface-container-high": "#e3ebdc",
+              "surface-variant": "#dee5d6",
+              "primary-container": "#3a7b3a",
+              "surface-container-lowest": "#ffffff",
+              "on-error-container": "#93000a",
+              "on-primary-fixed": "#002203",
+              "secondary-fixed": "#cee5ff",
+              "primary": "#206223",
+              "background": "#f5fced",
+              "inverse-on-surface": "#ecf3e4",
+              "secondary-fixed-dim": "#96ccff",
+              "on-secondary-container": "#00436a",
+              "surface-bright": "#f5fced",
+              "error": "#ba1a1a",
+              "primary-fixed-dim": "#91d78a",
+              "on-secondary": "#ffffff",
+              "surface-container-highest": "#dee5d6",
+              "surface-dim": "#d5dcce",
+              "on-surface-variant": "#40493d",
+              "on-tertiary-fixed": "#2b160f",
+              "inverse-surface": "#2c3228"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5fced;
+            color: #171d14;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #bfcaba;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="overflow-hidden">
+<!-- TopNavBar -->
+<header class="bg-[#f5fced] dark:bg-emerald-950/80 backdrop-blur-xl sticky top-0 z-50 flex justify-between items-center w-full px-6 py-4 max-w-8xl mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-black text-[#206223] dark:text-[#acf4a4] tracking-tighter font-headline">Hanoi CleanCity</span>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-[#171d14] dark:text-emerald-100/70 hover:text-[#206223] transition-colors font-headline font-bold tracking-tight" href="trangchu.html">Home</a>
+<a class="text-[#206223] dark:text-[#acf4a4] border-b-2 border-[#206223] dark:border-[#acf4a4] pb-1 font-headline font-bold tracking-tight" href="bando.html">Map</a>
+<a class="text-[#171d14] dark:text-emerald-100/70 hover:text-[#206223] transition-colors font-headline font-bold tracking-tight" href="nguoidan.html">Reports</a>
+<a class="text-[#171d14] dark:text-emerald-100/70 hover:text-[#206223] transition-colors font-headline font-bold tracking-tight" href="canbo.html">Management</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="bg-surface-container-low border-none rounded-full pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary w-64" placeholder="Tìm kiếm khu vực..." type="text"/>
+</div>
+<button class="p-2 text-primary hover:bg-[#dee5d6] dark:hover:bg-emerald-800/50 rounded-lg transition-all active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-primary hover:bg-[#dee5d6] dark:hover:bg-emerald-800/50 rounded-lg transition-all active:scale-95">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<div class="flex h-[calc(100vh-72px)] overflow-hidden">
+<!-- SideNavBar / Filter Panel -->
+<aside class="fixed left-0 top-[72px] h-[calc(100vh-72px)] w-80 bg-[#eff6e7] dark:bg-emerald-900/10 flex flex-col p-6 gap-6 z-40 border-r-0 shadow-none">
+<div class="space-y-1">
+<h2 class="text-xl font-bold text-[#206223] dark:text-[#acf4a4] font-headline">Bộ lọc bản đồ</h2>
+<p class="text-sm text-on-surface-variant">Quản lý hiển thị sự cố đô thị</p>
+</div>
+<!-- Filter Controls -->
+<div class="flex flex-col gap-5 overflow-y-auto custom-scrollbar pr-2">
+<div class="space-y-3">
+<label class="text-xs font-bold uppercase tracking-widest text-tertiary">Quận / Huyện</label>
+<select class="w-full bg-surface-container-highest border-none rounded-xl py-3 px-4 text-sm focus:ring-primary">
+<option>Tất cả quận huyện</option>
+<option>Hoàn Kiếm</option>
+<option>Ba Đình</option>
+<option>Đống Đa</option>
+<option>Hai Bà Trưng</option>
+<option>Cầu Giấy</option>
+</select>
+</div>
+<div class="space-y-3">
+<label class="text-xs font-bold uppercase tracking-widest text-tertiary">Loại sự cố</label>
+<div class="grid grid-cols-1 gap-2">
+<label class="flex items-center gap-3 p-3 bg-surface-container-lowest rounded-xl cursor-pointer hover:bg-surface-container-high transition-colors group">
+<input checked="" class="rounded text-primary focus:ring-primary border-outline-variant/30" type="checkbox"/>
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">delete</span>
+<span class="text-sm font-medium">Rác thải</span>
+</label>
+<label class="flex items-center gap-3 p-3 bg-surface-container-lowest rounded-xl cursor-pointer hover:bg-surface-container-high transition-colors group">
+<input checked="" class="rounded text-secondary focus:ring-secondary border-outline-variant/30" type="checkbox"/>
+<span class="material-symbols-outlined text-secondary group-hover:scale-110 transition-transform">lightbulb</span>
+<span class="text-sm font-medium">Đèn đường hỏng</span>
+</label>
+<label class="flex items-center gap-3 p-3 bg-surface-container-lowest rounded-xl cursor-pointer hover:bg-surface-container-high transition-colors group">
+<input checked="" class="rounded text-tertiary focus:ring-tertiary border-outline-variant/30" type="checkbox"/>
+<span class="material-symbols-outlined text-tertiary group-hover:scale-110 transition-transform">streetview</span>
+<span class="text-sm font-medium">Lấn chiếm vỉa hè</span>
+</label>
+</div>
+</div>
+<!-- Legend Card -->
+<div class="bg-surface-container-highest rounded-2xl p-4 mt-4 space-y-4">
+<h3 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Chú giải trạng thái</h3>
+<div class="space-y-3">
+<div class="flex items-center gap-3">
+<span class="w-3 h-3 rounded-full bg-error ring-4 ring-error-container/50"></span>
+<span class="text-xs font-semibold">Mới nhận (New)</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="w-3 h-3 rounded-full bg-yellow-500 ring-4 ring-yellow-100"></span>
+<span class="text-xs font-semibold">Đang xử lý (Processing)</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="w-3 h-3 rounded-full bg-primary ring-4 ring-primary-fixed/50"></span>
+<span class="text-xs font-semibold">Đã hoàn thành (Resolved)</span>
+</div>
+</div>
+</div>
+<button class="bg-gradient-to-r from-primary to-primary-container text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/10 hover:translate-y-[-2px] transition-transform active:scale-95">
+<span class="material-symbols-outlined">add_circle</span>
+                    Báo cáo sự cố mới
+                </button>
+</div>
+</aside>
+<!-- Main Map Area -->
+<main class="ml-80 w-full relative bg-surface">
+<!-- Map Surface -->
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover grayscale-[20%] brightness-[1.05]" data-alt="Modern satellite map view of Hanoi city with clean streets and urban layout, stylized with subtle green and blue overlays for a high-tech civic dashboard feel" data-location="Hanoi" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBF0Td9OI9yCkO64kpQEWYh2Y0l0xB2xQKYLOJAL3wPVZu-RA225Cx4AkrlRRqBI5Hr8iWRcAbWBbGw3C02r8c5fDLrBDpOMq2k3Pv4RqxQpaWYChOVeC27XQzmyU7rVnJF3nEUWw-nOVnMnz_7JYJl3loQoKefVfaFW3umXTPuk1dW0GbY3lKTVJhpEjDQsvVSQo7XZQ7JeUS9jbZtj-EDB0hGszFj-WDhYIIhoG6YRP6wd379TfuB7otEY1ahFm_UC_Exd7f1QY6T"/>
+<!-- Map Markers (Floating UI) -->
+<!-- Marker 1: Trash issue -->
+<div class="absolute top-[40%] left-[30%] -translate-x-1/2 -translate-y-1/2 group cursor-pointer">
+<div class="relative">
+<div class="absolute inset-0 bg-error rounded-full animate-ping opacity-40"></div>
+<div class="relative bg-error text-white p-2 rounded-full shadow-2xl flex items-center justify-center border-2 border-white">
+<span class="material-symbols-outlined text-[20px] fill-icon">delete</span>
+</div>
+</div>
+<!-- Tooltip (Simulated Glassmorphism) -->
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-48 bg-white/80 backdrop-blur-md p-3 rounded-xl shadow-xl border border-white/20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+<div class="text-[10px] font-bold text-error uppercase mb-1">Mới báo cáo</div>
+<div class="text-sm font-bold">Điểm tập kết rác tự phát</div>
+<div class="text-[10px] text-on-surface-variant">Phố Hàng Bạc, Hoàn Kiếm</div>
+</div>
+</div>
+<!-- Marker 2: Processing Lamp -->
+<div class="absolute top-[25%] left-[60%] -translate-x-1/2 -translate-y-1/2 group cursor-pointer">
+<div class="relative">
+<div class="relative bg-yellow-500 text-white p-2 rounded-full shadow-2xl flex items-center justify-center border-2 border-white">
+<span class="material-symbols-outlined text-[20px] fill-icon">lightbulb</span>
+</div>
+</div>
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-48 bg-white/80 backdrop-blur-md p-3 rounded-xl shadow-xl border border-white/20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+<div class="text-[10px] font-bold text-yellow-600 uppercase mb-1">Đang xử lý</div>
+<div class="text-sm font-bold">Hệ thống đèn đường tắt</div>
+<div class="text-[10px] text-on-surface-variant">Đường Thanh Niên, Ba Đình</div>
+</div>
+</div>
+<!-- Marker 3: Resolved Sidewalk -->
+<div class="absolute top-[65%] left-[55%] -translate-x-1/2 -translate-y-1/2 group cursor-pointer">
+<div class="relative">
+<div class="relative bg-primary text-white p-2 rounded-full shadow-2xl flex items-center justify-center border-2 border-white">
+<span class="material-symbols-outlined text-[20px] fill-icon">streetview</span>
+</div>
+</div>
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-48 bg-white/80 backdrop-blur-md p-3 rounded-xl shadow-xl border border-white/20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+<div class="text-[10px] font-bold text-primary uppercase mb-1">Đã giải quyết</div>
+<div class="text-sm font-bold">Giải tỏa vỉa hè lấn chiếm</div>
+<div class="text-[10px] text-on-surface-variant">Phố Khâm Thiên, Đống Đa</div>
+</div>
+</div>
+</div>
+<!-- Map Overlays / Controls -->
+<div class="absolute top-6 right-6 flex flex-col gap-2 z-10">
+<div class="bg-surface/80 backdrop-blur-lg rounded-xl shadow-lg p-1 flex flex-col border border-white/20">
+<button class="p-3 hover:bg-surface-container-highest rounded-lg transition-colors text-primary"><span class="material-symbols-outlined">add</span></button>
+<div class="h-[1px] bg-outline-variant/20 mx-2"></div>
+<button class="p-3 hover:bg-surface-container-highest rounded-lg transition-colors text-primary"><span class="material-symbols-outlined">remove</span></button>
+</div>
+<button class="bg-surface/80 backdrop-blur-lg rounded-xl shadow-lg p-3 border border-white/20 text-primary hover:bg-surface-container-highest">
+<span class="material-symbols-outlined">my_location</span>
+</button>
+<button class="bg-surface/80 backdrop-blur-lg rounded-xl shadow-lg p-3 border border-white/20 text-primary hover:bg-surface-container-highest">
+<span class="material-symbols-outlined">layers</span>
+</button>
+</div>
+<!-- Bottom Floating Stats Card (Asymmetric Layout) -->
+<div class="absolute bottom-8 left-8 right-8 pointer-events-none flex justify-end">
+<div class="pointer-events-auto bg-[#ffffff]/90 backdrop-blur-2xl p-6 rounded-[2rem] shadow-[0_-12px_32px_rgba(23,29,20,0.06)] flex items-center gap-8 border border-[#bfcaba]/15">
+<div class="flex items-center gap-4 border-r border-outline-variant/30 pr-8">
+<div class="w-12 h-12 rounded-2xl bg-primary-fixed flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-2xl fill-icon">analytics</span>
+</div>
+<div>
+<div class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Tổng báo cáo tháng</div>
+<div class="text-2xl font-black font-headline text-primary">1,248</div>
+</div>
+</div>
+<div class="flex items-center gap-4 border-r border-outline-variant/30 pr-8">
+<div class="w-12 h-12 rounded-2xl bg-secondary-fixed flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-2xl fill-icon">verified</span>
+</div>
+<div>
+<div class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Đã xử lý</div>
+<div class="text-2xl font-black font-headline text-secondary">85%</div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<div class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Khu vực tích cực nhất</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary text-sm">stars</span>
+<span class="text-sm font-bold">Quận Hoàn Kiếm</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-[#f5fced]/80 dark:bg-emerald-950/90 backdrop-blur-2xl rounded-t-[2rem] shadow-[0_-12px_32px_rgba(23,29,20,0.06)] border-t border-[#bfcaba]/15">
+<a class="flex flex-col items-center justify-center text-[#6b4f45] dark:text-emerald-200/50 hover:opacity-80 transition-transform active:scale-90" href="trangchu.html">
+<span class="material-symbols-outlined">home</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#acf4a4] dark:bg-[#206223] text-[#206223] dark:text-[#acf4a4] rounded-2xl px-6 py-2 transition-transform active:scale-90" href="bando.html">
+<span class="material-symbols-outlined">location_on</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest">Map</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#6b4f45] dark:text-emerald-200/50 hover:opacity-80 transition-transform active:scale-90" href="nguoidan.html">
+<span class="material-symbols-outlined">add_circle</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest">Report</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#6b4f45] dark:text-emerald-200/50 hover:opacity-80 transition-transform active:scale-90" href="canbo.html">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest">Profile</span>
+</a>
+</nav>
+</body></html>

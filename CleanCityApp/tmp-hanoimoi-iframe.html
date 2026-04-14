@@ -1,0 +1,248 @@
+﻿
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <title>Bản đồ Hà Nội</title>
+    <link rel="shortcut icon" href="https://hnm.1cdn.vn/assets/images/favicon.ico" />
+    <meta name="title" content="Bản đồ xã/phường Hà Nội">
+    <meta name="description" content="Thông tin bản đồ Hà Nội sau sáp nhập">
+    <meta name="keywords" content="Bản đồ Hà Nội, xã phường Hà Nội">
+    <meta name="og:image" content="https://hnm.1cdn.vn/assets/images/hanoi-map-ogimage.jpg">
+    <meta name="og:title" content="Bản đồ xã/phường Hà Nội">
+    <meta name="og:description" content="Thông tin bản đồ Hà Nội sau sáp nhập">
+    <meta name="author" content="Báo HàNộiMới">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://hnm.1cdn.vn/assets/hanoi-googlemap/map.2.css?t=202603302148" />
+    <script src='https://cdn.jsdelivr.net/npm/@goongmaps/goong-js@latest/dist/goong-js.js'></script>
+    <link href='https://cdn.jsdelivr.net/npm/@goongmaps/goong-js@latest/dist/goong-js.css' rel='stylesheet' />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-R7D1Q0CLGB');
+    </script>
+</head>
+<style>
+    .mapboxgl-ctrl {
+        display: none !important;
+    }
+</style>
+<body>
+    <!-- Background element -->
+    <div class="c-story-backgrounds">
+        <figure class="c-story-backgrounds__clockwise">
+            <img class="lazy" data-src="https://hnm.1cdn.vn/assets/hanoi-googlemap/trong-dong-c-2k-mirror.png"
+                 src="https://hnm.1cdn.vn/assets/hanoi-googlemap/trong-dong-c-2k-mirror.png"
+                 alt="trống đồng">
+        </figure>
+    </div>
+    <div class="container">
+        <!-- Mobile Toggle Button -->
+        <button class="mobile-toggle" onclick="toggleSidebar()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
+
+        <!-- Mobile Overlay -->
+        <div class="mobile-overlay" onclick="closeSidebar()"></div>
+
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <!-- Header với logo Hà Nội -->
+            <div class="sidebar-header">
+                <div class="logo" onclick="expandSidebar()">
+                    <img src="/Assets/hanoi-googlemap/logo-thu-do-ha-noi.png" alt="Logo Hà Nội" />
+                </div>
+                <div class="header-content">
+                    <h1>Thành Phố Hà Nội</h1>
+                </div>
+                <button class="close-btn" onclick="collapseSidebar()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M15.41 7.41L14 6L8 12L14 18L15.41 16.59L10.83 12Z" />
+                    </svg>
+                </button>
+                <!-- Expand button (hiện khi collapsed) -->
+                <button class="expand-btn" onclick="expandSidebar()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8.59 16.59L10 18L16 12L10 6L8.59 7.41L13.17 12Z" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Thông tin cơ bản về Hà Nội -->
+            <div class="city-info">
+                <div class="city-info-item">
+                    <span class="city-info-label">Diện tích:</span>
+                    <span class="city-info-value">3.359,8 km²</span>
+                </div>
+                <div class="city-info-item">
+                    <span class="city-info-label">Dân số:</span>
+                    <span class="city-info-value">8.718.000</span>
+                </div>
+                
+                <div class="city-info-item">
+                    <span class="city-info-label">Tình trạng:</span>
+                    <span class="city-info-value">Không sáp nhập</span>
+                </div>
+            </div>
+
+            <!-- Search Section -->
+            <div class="search-section">
+                <h3>Thông tin các phường xã</h3>
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="🔍 Tìm kiếm xã, phường..." id="searchInput">
+                </div>
+            </div>
+
+            <!-- Danh sách xã phường -->
+            <div class="commune-list" id="communeList">
+                <!-- Danh sách sẽ được tạo bởi JavaScript -->
+            </div>
+        </div>
+
+        <!-- Map Container -->
+        <div class="map-container">
+            <div id="map"></div>
+
+            <!-- Toggle Buttons -->
+            <div class="toggle-buttons">
+                <button class="toggle-btn active" onclick="toggleBoundary()" title="Làm nổi bật Hà Nội">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12,2L2,7V10C2,16.5 6.5,21.5 12,23C17.5,21.5 22,16.5 22,10V7L12,2M12,4.3L20,8.2V10C20,15.4 16.2,19.1 12,20.8C7.8,19.1 4,15.4 4,10V8.2L12,4.3Z" />
+                    </svg>
+                </button>
+
+                <button class="toggle-btn" onclick="toggleLabels()" title="Hiển thị/Ẩn tên xã phường">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6Z" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Detail Panel -->
+            <div style="margin-top: 15px;" class="detail-panel" id="detailPanel">
+                <div class="detail-panel-header">
+                    <h2 class="detail-panel-title" id="detailTitle">Chọn một xã/phường</h2>
+                    <button class="detail-panel-close" onclick="closeDetailPanel()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="detail-panel-content" id="detailContent">
+                    <!-- Nội dung sẽ được cập nhật bởi JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+    const CDN = 'https://hnm.1cdn.vn';
+        const MaHoaXa = `${CDN}/assets/hanoi-googlemap/mahoa_xa.json`;
+        const DiaPhan = `${CDN}/assets/hanoi-googlemap/DiaPhan_TinhHaNoi.json`;
+        const IMGTrongDong = `${CDN}/hanoi-googlemap/maps/trong-dong.png`;
+    </script>
+    <script src="https://hnm.1cdn.vn/assets/hanoi-googlemap/loadmap-goongmap.min.js?t=202603302148"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let showLabels = true;
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.mobile-overlay');
+            const expandBtn = document.querySelector('.expand-btn');
+
+            // Sửa lại các function check màn hình
+            function isMobile() {
+                return window.innerWidth <= 674; // Đổi từ 768 thành 674 để khớp CSS
+            }
+
+            function isSmallMobile() {
+                return window.innerWidth <= 425;
+            }
+
+            function isTablet() {
+                return window.innerWidth >= 675 && window.innerWidth <= 871;
+            }
+
+            window.collapseSidebar = function () {
+                //console.log('Collapse clicked at width:', window.innerWidth);
+
+                if (isMobile()) {
+                    // Mobile: đóng sidebar thay vì collapse
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                    console.log('Mobile: Closed sidebar');
+                } else {
+                    // Desktop/Tablet: collapse sidebar
+                    sidebar.classList.add('collapsed');
+                    if (expandBtn) expandBtn.style.display = 'flex';
+                    console.log('Desktop/Tablet: Collapsed sidebar');
+                }
+            };
+
+            window.expandSidebar = function () {
+                if (isMobile()) {
+                    // Mobile: mở sidebar
+                    sidebar.classList.add('active');
+                    overlay.classList.add('active');
+                } else {
+                    // Desktop/Tablet: expand sidebar
+                    sidebar.classList.remove('collapsed');
+                    if (expandBtn) expandBtn.style.display = 'none';
+                }
+            };
+
+            window.toggleSidebar = function () {
+                if (isSmallMobile()) {
+                    // Trên màn hình nhỏ: toggle đơn giản show/hide
+                    if (sidebar.classList.contains('active')) {
+                        sidebar.classList.remove('active');
+                        overlay.classList.remove('active');
+                    } else {
+                        sidebar.classList.remove('collapsed');
+                        sidebar.classList.add('active');
+                        overlay.classList.add('active');
+                    }
+                } else {
+                    // Màn hình lớn hơn: logic cũ
+                    sidebar.classList.toggle('active');
+                    overlay.classList.toggle('active');
+                }
+            };
+
+            window.closeSidebar = function () {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            };
+
+            window.closeDetailPanel = function () {
+                const detailPanel = document.getElementById('detailPanel');
+                if (detailPanel) detailPanel.classList.remove('show');
+            };
+
+            // Reset trạng thái khi resize màn hình
+            window.addEventListener('resize', function () {
+                if (!isMobile()) {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                }
+                if (isMobile()) {
+                    sidebar.classList.remove('collapsed');
+                    if (expandBtn) expandBtn.style.display = 'none';
+                }
+            });
+
+            // Khởi tạo
+            if (isMobile()) {
+                sidebar.classList.remove('collapsed');
+                if (expandBtn) expandBtn.style.display = 'none';
+            }
+        });
+    </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"2383fb4882f243b1b53a3196cdec7ad3","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>

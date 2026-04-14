@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hanoi CleanCity | Cổng Quản Lý Đô Thị</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary": "#ffffff",
+              "tertiary-container": "#85675c",
+              "tertiary-fixed-dim": "#e4beb2",
+              "surface": "#f5fced",
+              "surface-container-low": "#eff6e7",
+              "outline-variant": "#bfcaba",
+              "secondary": "#00639a",
+              "on-primary-fixed-variant": "#0c5216",
+              "primary-fixed": "#acf4a4",
+              "on-error": "#ffffff",
+              "on-surface": "#171d14",
+              "on-secondary-fixed-variant": "#004a75",
+              "on-tertiary-container": "#ffeee8",
+              "on-secondary-fixed": "#001d32",
+              "error-container": "#ffdad6",
+              "surface-container": "#e9f0e1",
+              "on-background": "#171d14",
+              "inverse-primary": "#91d78a",
+              "tertiary-fixed": "#ffdbce",
+              "tertiary": "#6b4f45",
+              "surface-tint": "#2a6b2c",
+              "secondary-container": "#51b2fe",
+              "on-tertiary-fixed-variant": "#5b4137",
+              "on-tertiary": "#ffffff",
+              "outline": "#707a6c",
+              "on-primary-container": "#cbffc2",
+              "surface-container-high": "#e3ebdc",
+              "surface-variant": "#dee5d6",
+              "primary-container": "#3a7b3a",
+              "surface-container-lowest": "#ffffff",
+              "on-error-container": "#93000a",
+              "on-primary-fixed": "#002203",
+              "secondary-fixed": "#cee5ff",
+              "primary": "#206223",
+              "background": "#f5fced",
+              "inverse-on-surface": "#ecf3e4",
+              "secondary-fixed-dim": "#96ccff",
+              "on-secondary-container": "#00436a",
+              "surface-bright": "#f5fced",
+              "error": "#ba1a1a",
+              "primary-fixed-dim": "#91d78a",
+              "on-secondary": "#ffffff",
+              "surface-container-highest": "#dee5d6",
+              "surface-dim": "#d5dcce",
+              "on-surface-variant": "#40493d",
+              "on-tertiary-fixed": "#2b160f",
+              "inverse-surface": "#2c3228"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f5fced;
+      }
+      .editorial-header {
+        font-family: 'Manrope', sans-serif;
+      }
+    </style>
+</head>
+<body class="text-on-surface">
+<!-- Side Navigation Shell -->
+<aside class="fixed left-0 top-0 h-full flex flex-col p-4 gap-2 h-screen w-64 border-r-0 bg-[#eff6e7] dark:bg-emerald-900/10 z-50 hidden md:flex">
+<div class="mb-8 px-4">
+<h1 class="text-xl font-bold text-[#206223] dark:text-[#acf4a4] editorial-header">Urban Portal</h1>
+<p class="text-xs text-[#6b4f45] font-medium">Hanoi Management</p>
+</div>
+<nav class="flex-1 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 bg-[#206223] text-white rounded-xl shadow-lg shadow-[#206223]/10 transition-all duration-200 ease-out" href="canbo.html">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-medium text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#6b4f45] hover:bg-[#dee5d6] transition-all duration-200 ease-out rounded-xl" href="bando.html">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="font-medium text-sm">Map View</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#6b4f45] hover:bg-[#dee5d6] transition-all duration-200 ease-out rounded-xl" href="nguoidan.html">
+<span class="material-symbols-outlined" data-icon="assignment">assignment</span>
+<span class="font-medium text-sm">Reports</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#6b4f45] hover:bg-[#dee5d6] transition-all duration-200 ease-out rounded-xl" href="trangchu.html">
+<span class="material-symbols-outlined" data-icon="qr_code_scanner">qr_code_scanner</span>
+<span class="font-medium text-sm">Home</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#6b4f45] hover:bg-[#dee5d6] transition-all duration-200 ease-out rounded-xl" href="canbo.html">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-medium text-sm">Analytics</span>
+</a>
+</nav>
+<div class="mt-auto flex flex-col gap-1 pt-4 border-t border-[#bfcaba]/15">
+<button class="mb-4 w-full bg-[#acf4a4] text-[#002203] font-bold py-3 rounded-xl shadow-sm hover:opacity-90 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                New Report
+            </button>
+<a class="flex items-center gap-3 px-4 py-2 text-[#6b4f45] hover:bg-[#dee5d6] rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-medium text-sm">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-[#6b4f45] hover:bg-[#dee5d6] rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-medium text-sm">Support</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 min-h-screen">
+<!-- Top Navigation -->
+<header class="sticky top-0 z-40 flex justify-between items-center w-full px-8 py-6 bg-[#f5fced] dark:bg-emerald-950/80 backdrop-blur-xl">
+<div class="flex flex-col">
+<h2 class="text-2xl font-black text-[#206223] tracking-tighter editorial-header uppercase">Hanoi CleanCity</h2>
+<span class="text-xs font-bold text-tertiary uppercase tracking-widest">Bảng điều khiển quản trị</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden lg:flex items-center bg-surface-container-low px-4 py-2 rounded-full">
+<span class="material-symbols-outlined text-outline mr-2" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-64 text-on-surface" placeholder="Tìm kiếm báo cáo..." type="text"/>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2 text-[#206223] hover:bg-[#dee5d6] rounded-lg transition-all relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<div class="h-10 w-10 rounded-full overflow-hidden bg-surface-container-highest">
+<img alt="Admin" class="w-full h-full object-cover" data-alt="Professional headshot of a city official in a suit, soft office lighting, clean background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDE9a40ugoy0PggwkCKoV2BHHemecWMK7HBJmzX561-o9gTSRXiayAprPBl4P3p7LMepuo04wWI1TSuUrd4PF6oUTzQBn2zTK87gtuOOTZPU6T5LWTgiAbq-rO6ND9SCozNsmBkfGa1_WwqYyURhYGCTJLx_weCqU0vlf1BRscnb4HQJQRlwdQDtRLwgIyEGNwMr9FC6_9GGgj-kCPilj1mlIozVr2k2sP0_coU2d91N8sHEshC4iT9FY4TiF_8cnGfhOsmhWmnCxal"/>
+</div>
+</div>
+</div>
+</header>
+<div class="px-8 pb-12 space-y-10">
+<!-- Dashboard Overview: Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<!-- Highlight Card -->
+<div class="md:col-span-2 bg-primary rounded-[2rem] p-8 text-on-primary relative overflow-hidden flex flex-col justify-between min-h-[240px]">
+<div class="z-10">
+<h3 class="editorial-header text-3xl font-extrabold mb-1">Hiệu suất Đô thị</h3>
+<p class="text-primary-fixed-dim opacity-90 font-medium">Tháng 10, 2023 • Hoàn thành 94%</p>
+</div>
+<div class="z-10 flex items-end gap-4 mt-8">
+<div>
+<span class="block text-4xl font-black editorial-header">1.284</span>
+<span class="text-xs font-bold uppercase tracking-widest opacity-80">Báo cáo mới</span>
+</div>
+<div class="h-12 w-px bg-on-primary/20"></div>
+<div>
+<span class="block text-4xl font-black editorial-header">42</span>
+<span class="text-xs font-bold uppercase tracking-widest opacity-80">Đội hiện trường</span>
+</div>
+</div>
+<!-- Decorative Background Element -->
+<div class="absolute -right-12 -bottom-12 w-64 h-64 bg-primary-container rounded-full opacity-20 blur-3xl"></div>
+</div>
+<!-- Secondary Data Cards -->
+<div class="bg-surface-container-highest rounded-[2rem] p-8 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-secondary text-3xl" data-icon="location_city">location_city</span>
+<span class="text-primary font-bold text-sm">+12%</span>
+</div>
+<div>
+<span class="block text-3xl font-black editorial-header text-on-surface">Hoàn Kiếm</span>
+<span class="text-sm font-medium text-tertiary">Khu vực năng động nhất</span>
+</div>
+</div>
+<div class="bg-secondary rounded-[2rem] p-8 text-on-primary flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-on-primary text-3xl" data-icon="auto_awesome">auto_awesome</span>
+<span class="bg-white/20 px-2 py-1 rounded text-[10px] font-bold uppercase">AI Active</span>
+</div>
+<div>
+<span class="block text-3xl font-black editorial-header">892</span>
+<span class="text-sm font-medium opacity-80">Phân loại tự động</span>
+</div>
+</div>
+</section>
+<!-- Main Interactive Section: Reports & Map -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+<!-- Incoming Reports List (2/3 width) -->
+<div class="lg:col-span-2 space-y-6">
+<div class="flex justify-between items-end mb-2">
+<h3 class="editorial-header text-3xl font-extrabold text-on-surface">Báo cáo đến</h3>
+<button class="text-primary font-bold text-sm flex items-center gap-1 hover:underline">
+                            Xem tất cả <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+<div class="space-y-4">
+<!-- Report Card 1 -->
+<div class="group bg-surface-container-lowest hover:bg-white transition-all duration-300 p-6 rounded-[1.5rem] flex flex-col md:flex-row gap-6 items-start md:items-center">
+<div class="w-full md:w-32 h-24 rounded-xl overflow-hidden bg-surface-container flex-shrink-0">
+<img alt="Report Image" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Overflowing public trash can on a busy Hanoi street sidewalk, day time, urban environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0GsEi-zNhbywUci9sMFPt8z_NBMDLe-k7XTOVuA90PvF-NLvwQ8zltiBShSYGzHBj7zTmi88p4V_-8h5ZhYLgzsVgau-_7ZdtX9p1Je_dx0SF81BL1C1LupnOEn2slQWikl3DLzKMWJBHrSk4iFQiIHGSJXMIuCE0g8ZQU0zjxt56kDpDXNAJikcbiY9ZV708NrNI04ZuYR661WaAjKZEo3GRZEciV6PflaYgg7ehBMLeUn84qon__pMPAGw_VpP73TH5wY6nX8-G"/>
+</div>
+<div class="flex-1 space-y-2">
+<div class="flex items-center gap-3">
+<span class="px-3 py-1 bg-error-container text-on-error-container text-[10px] font-bold uppercase rounded-full tracking-wider">Khẩn cấp</span>
+<span class="text-xs font-medium text-outline">#2948 - 15 phút trước</span>
+</div>
+<h4 class="text-lg font-bold text-on-surface leading-tight">Rác thải tồn đọng tại Phố Đi Bộ</h4>
+<div class="flex items-center gap-4 text-sm text-tertiary">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm" data-icon="location_on">location_on</span> Hoàn Kiếm, Hà Nội</span>
+<span class="flex items-center gap-1 bg-surface-container px-2 py-0.5 rounded text-[11px] font-semibold text-primary uppercase"><span class="material-symbols-outlined text-xs" data-icon="smart_toy">smart_toy</span> Vệ sinh</span>
+</div>
+</div>
+<div class="flex md:flex-col gap-2 w-full md:w-auto">
+<button class="flex-1 px-6 py-2.5 bg-primary text-on-primary text-sm font-bold rounded-xl hover:opacity-90 transition-all shadow-sm">Điều phối</button>
+<button class="p-2.5 text-tertiary hover:bg-surface-container rounded-xl transition-all">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Report Card 2 -->
+<div class="group bg-surface-container-lowest hover:bg-white transition-all duration-300 p-6 rounded-[1.5rem] flex flex-col md:flex-row gap-6 items-start md:items-center">
+<div class="w-full md:w-32 h-24 rounded-xl overflow-hidden bg-surface-container flex-shrink-0">
+<img alt="Report Image" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Broken street lamp post in a residential area, sunset time, atmospheric lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDiARZVNOpU-69HvPkbrIKDou23wgE63CPyYKSUd21cUDOKxbLdU5C8_m6tsIPPDkfpnKLD-S80kbju4f0hncKRMP7Tuvndzb6jBS2fWs2uPBlyCe47GlOqiQD_j8S2OmjTF-A8gxghTvlCHU-M-lhIniKEUp9D9X5cqZmenwZlyz3BUPU6OGpMS8fZm6Zu7t1AXS7PE9wpYFZrSk9dXeb1bs_CWDgAgK1W8K4qVxKMulKdrS0N8do-H3xodNxYrmI9P5T4-orWcB-Y"/>
+</div>
+<div class="flex-1 space-y-2">
+<div class="flex items-center gap-3">
+<span class="px-3 py-1 bg-secondary-fixed text-on-secondary-fixed-variant text-[10px] font-bold uppercase rounded-full tracking-wider">Trung bình</span>
+<span class="text-xs font-medium text-outline">#2947 - 1 giờ trước</span>
+</div>
+<h4 class="text-lg font-bold text-on-surface leading-tight">Đèn đường hỏng tại Ngõ 12 Đặng Thai Mai</h4>
+<div class="flex items-center gap-4 text-sm text-tertiary">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm" data-icon="location_on">location_on</span> Tây Hồ, Hà Nội</span>
+<span class="flex items-center gap-1 bg-surface-container px-2 py-0.5 rounded text-[11px] font-semibold text-secondary uppercase"><span class="material-symbols-outlined text-xs" data-icon="smart_toy">smart_toy</span> Hạ tầng</span>
+</div>
+</div>
+<div class="flex md:flex-col gap-2 w-full md:w-auto">
+<button class="flex-1 px-6 py-2.5 bg-primary text-on-primary text-sm font-bold rounded-xl hover:opacity-90 transition-all shadow-sm">Điều phối</button>
+<button class="p-2.5 text-tertiary hover:bg-surface-container rounded-xl transition-all">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Report Card 3 -->
+<div class="group bg-surface-container-lowest hover:bg-white transition-all duration-300 p-6 rounded-[1.5rem] flex flex-col md:flex-row gap-6 items-start md:items-center">
+<div class="w-full md:w-32 h-24 rounded-xl overflow-hidden bg-surface-container flex-shrink-0">
+<img alt="Report Image" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Leaking water pipe on a street corner creating a large puddle, daytime, urban infrastructure" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBphwXccDXdzQdrSSA3SwxkTPvdtJ4Du21NHVbHToMisOSiWCJu4__ZrGeU9eI3iA7xPx9G3hy4M6yL5IK5w3J5oAf8QCoRq_QJLIHArVP25Ns8ndpLesMuBDsuO_7qxNadDh3_8faVULi0Jf7OHky32sjACO3yu2KPKy4bHSB1SBPW3Ktg6_GqTD-dmy8NU5K5LzSjLp6LApEPYVK2rnfUyKwQ7evf4ZRkIbxE1Arj2ZptdhyPrgxgohN_iThqfIeuXj5SpsaWGrq4"/>
+</div>
+<div class="flex-1 space-y-2">
+<div class="flex items-center gap-3">
+<span class="px-3 py-1 bg-secondary-fixed text-on-secondary-fixed-variant text-[10px] font-bold uppercase rounded-full tracking-wider">Trung bình</span>
+<span class="text-xs font-medium text-outline">#2946 - 2 giờ trước</span>
+</div>
+<h4 class="text-lg font-bold text-on-surface leading-tight">Rò rỉ ống nước sạch đầu ngõ</h4>
+<div class="flex items-center gap-4 text-sm text-tertiary">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm" data-icon="location_on">location_on</span> Đống Đa, Hà Nội</span>
+<span class="flex items-center gap-1 bg-surface-container px-2 py-0.5 rounded text-[11px] font-semibold text-secondary uppercase"><span class="material-symbols-outlined text-xs" data-icon="smart_toy">smart_toy</span> Cấp nước</span>
+</div>
+</div>
+<div class="flex md:flex-col gap-2 w-full md:w-auto">
+<button class="flex-1 px-6 py-2.5 bg-primary text-on-primary text-sm font-bold rounded-xl hover:opacity-90 transition-all shadow-sm">Điều phối</button>
+<button class="p-2.5 text-tertiary hover:bg-surface-container rounded-xl transition-all">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Map & Tasks -->
+<div class="space-y-8">
+<!-- Map Widget -->
+<div class="bg-surface-container-highest rounded-[2.5rem] overflow-hidden relative min-h-[320px] shadow-lg">
+<div class="absolute inset-0 z-0">
+<img alt="Hanoi city map with focus pins" class="w-full h-full object-cover opacity-80 grayscale-[0.2]" data-location="Hanoi" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9No8O6mIenEwtx588mU7j-Arp9CKmamzNPp8i37QpK16UR1hctH3MImVm5azkjwjZ5GFyrCHkAIM0SX4cDiPFd3GS9wpKgFs3_EDjQILdbrqzZ4oyQ_w2nZQZ6I6yacEKJoGcsczCqU6-nCV_k72JK4ahHVv-1_4reiwPR9FsG9vjNkw2YVK1Z-oM3H3Cxbbgw-LYZMU6CzPLcC5K_U4hBkXZgk-FsMz6otoM5ftzHBXqVB8zRp2VE7k7h1ewtgCC-lBW1uVrxwff"/>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10 pointer-events-none"></div>
+<div class="absolute top-4 left-4 z-20 flex flex-col gap-2">
+<button class="bg-white/80 backdrop-blur-md p-2 rounded-xl shadow-sm hover:bg-white transition-all">
+<span class="material-symbols-outlined text-on-surface" data-icon="zoom_in">zoom_in</span>
+</button>
+<button class="bg-white/80 backdrop-blur-md p-2 rounded-xl shadow-sm hover:bg-white transition-all">
+<span class="material-symbols-outlined text-on-surface" data-icon="zoom_out">zoom_out</span>
+</button>
+</div>
+<div class="absolute bottom-6 left-6 right-6 z-20">
+<div class="bg-white/90 backdrop-blur-xl p-4 rounded-2xl shadow-xl flex items-center justify-between">
+<div>
+<span class="block text-xs font-bold uppercase text-tertiary tracking-widest">Bản đồ nhiệt</span>
+<span class="text-sm font-bold text-on-surface">Đang theo dõi 28 điểm nóng</span>
+</div>
+<span class="material-symbols-outlined text-secondary" data-icon="farsight_2">farsight_digital</span>
+</div>
+</div>
+</div>
+<!-- Field Teams Task List -->
+<div class="bg-surface-container-low rounded-[2rem] p-8 border border-outline-variant/10">
+<h3 class="editorial-header text-xl font-extrabold text-on-surface mb-6">Đội hiện trường</h3>
+<div class="space-y-6 relative">
+<!-- Timeline Path -->
+<div class="absolute left-4 top-2 bottom-2 w-px border-l-2 border-dashed border-tertiary-fixed-dim"></div>
+<!-- Task Item 1 -->
+<div class="relative pl-10">
+<div class="absolute left-0 top-0 w-8 h-8 bg-primary-fixed rounded-full flex items-center justify-center border-4 border-surface-container-low">
+<span class="material-symbols-outlined text-[16px] text-primary" data-icon="check" data-weight="fill">check</span>
+</div>
+<div class="space-y-1">
+<span class="block text-xs font-bold text-primary uppercase">Đội Alpha - Hoàn thành</span>
+<p class="text-sm font-semibold text-on-surface">Thu gom rác tại Nhà Thờ Lớn</p>
+<span class="text-xs text-outline">Cập nhật 10:24 AM</span>
+</div>
+</div>
+<!-- Task Item 2 -->
+<div class="relative pl-10">
+<div class="absolute left-0 top-0 w-8 h-8 bg-secondary-container rounded-full flex items-center justify-center border-4 border-surface-container-low">
+<span class="material-symbols-outlined text-[16px] text-on-secondary-container animate-pulse" data-icon="running_with_errors">running_with_errors</span>
+</div>
+<div class="space-y-1">
+<span class="block text-xs font-bold text-secondary uppercase">Đội Delta - Đang thực hiện</span>
+<p class="text-sm font-semibold text-on-surface">Sửa đèn đường Nguyễn Du</p>
+<span class="text-xs text-outline">Ước tính xong trong 45p</span>
+</div>
+</div>
+<!-- Task Item 3 -->
+<div class="relative pl-10 opacity-60">
+<div class="absolute left-0 top-0 w-8 h-8 bg-surface-container-highest rounded-full flex items-center justify-center border-4 border-surface-container-low">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="pending">pending</span>
+</div>
+<div class="space-y-1">
+<span class="block text-xs font-bold text-tertiary uppercase">Đội Sigma - Đang chờ</span>
+<p class="text-sm font-semibold text-on-surface">Khử khuẩn khu vực hồ Gươm</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Mobile Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-[#f5fced]/80 dark:bg-emerald-950/90 backdrop-blur-2xl rounded-t-[2rem] shadow-[0_-12px_32px_rgba(23,29,20,0.06)] md:hidden">
+<a class="flex flex-col items-center justify-center bg-[#acf4a4] dark:bg-[#206223] text-[#206223] dark:text-[#acf4a4] rounded-2xl px-6 py-2 transition-transform active:scale-90" href="canbo.html">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#6b4f45] dark:text-emerald-200/50 hover:opacity-80" href="bando.html">
+<span class="material-symbols-outlined" data-icon="location_on">location_on</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest mt-1">Map</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#6b4f45] dark:text-emerald-200/50 hover:opacity-80" href="nguoidan.html">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest mt-1">Report</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#6b4f45] dark:text-emerald-200/50 hover:opacity-80" href="trangchu.html">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest mt-1">Profile</span>
+</a>
+</nav>
+</body></html>

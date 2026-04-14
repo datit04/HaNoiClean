@@ -1,0 +1,118 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f5fced;
+    color: #171d14;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Manrope', sans-serif;
+  }
+}
+
+@layer utilities {
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+
+  .fill-icon {
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #bfcaba;
+    border-radius: 10px;
+  }
+
+  .glass-panel {
+    background: rgba(245, 252, 237, 0.8);
+    backdrop-filter: blur(20px);
+  }
+}
+
+@layer components {
+  /* Primary gradient button */
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary to-primary-container text-on-primary
+           rounded-xl font-bold shadow-lg shadow-primary/10
+           active:scale-95 transition-all disabled:opacity-60;
+  }
+
+  /* Section label (uppercase small) */
+  .section-label {
+    @apply text-xs font-bold uppercase tracking-widest;
+  }
+
+  /* Modal backdrop overlay */
+  .modal-overlay {
+    @apply fixed inset-0 z-50 flex items-center justify-center
+           bg-on-surface/40 backdrop-blur-sm p-4;
+  }
+
+  /* Modal content panel */
+  .modal-panel {
+    @apply bg-surface rounded-2xl shadow-2xl overflow-hidden
+           flex flex-col max-h-[90vh];
+  }
+
+  /* Map floating control */
+  .map-control {
+    @apply bg-surface/80 backdrop-blur-lg rounded-xl shadow-lg
+           border border-white/20 text-primary
+           hover:bg-surface-container-highest transition-colors;
+  }
+}
+
+/* Map marker styles */
+.map-marker {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.map-marker__ping {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  animation: marker-ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+  opacity: 0.4;
+}
+
+.map-marker__body {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  border: 2px solid white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  color: white;
+}
+
+.map-marker__body .material-symbols-outlined {
+  font-size: 18px;
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+}
+
+@keyframes marker-ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hanoi CleanCity - Vì một Thủ đô Xanh - Sạch - Đẹp</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary": "#ffffff",
+              "tertiary-container": "#85675c",
+              "tertiary-fixed-dim": "#e4beb2",
+              "surface": "#f5fced",
+              "surface-container-low": "#eff6e7",
+              "outline-variant": "#bfcaba",
+              "secondary": "#00639a",
+              "on-primary-fixed-variant": "#0c5216",
+              "primary-fixed": "#acf4a4",
+              "on-error": "#ffffff",
+              "on-surface": "#171d14",
+              "on-secondary-fixed-variant": "#004a75",
+              "on-tertiary-container": "#ffeee8",
+              "on-secondary-fixed": "#001d32",
+              "error-container": "#ffdad6",
+              "surface-container": "#e9f0e1",
+              "on-background": "#171d14",
+              "inverse-primary": "#91d78a",
+              "tertiary-fixed": "#ffdbce",
+              "tertiary": "#6b4f45",
+              "surface-tint": "#2a6b2c",
+              "secondary-container": "#51b2fe",
+              "on-tertiary-fixed-variant": "#5b4137",
+              "on-tertiary": "#ffffff",
+              "outline": "#707a6c",
+              "on-primary-container": "#cbffc2",
+              "surface-container-high": "#e3ebdc",
+              "surface-variant": "#dee5d6",
+              "primary-container": "#3a7b3a",
+              "surface-container-lowest": "#ffffff",
+              "on-error-container": "#93000a",
+              "on-primary-fixed": "#002203",
+              "secondary-fixed": "#cee5ff",
+              "primary": "#206223",
+              "background": "#f5fced",
+              "inverse-on-surface": "#ecf3e4",
+              "secondary-fixed-dim": "#96ccff",
+              "on-secondary-container": "#00436a",
+              "surface-bright": "#f5fced",
+              "error": "#ba1a1a",
+              "primary-fixed-dim": "#91d78a",
+              "on-secondary": "#ffffff",
+              "surface-container-highest": "#dee5d6",
+              "surface-dim": "#d5dcce",
+              "on-surface-variant": "#40493d",
+              "on-tertiary-fixed": "#2b160f",
+              "inverse-surface": "#2c3228"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .editorial-asymmetry {
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+        }
+        .glass-panel {
+            background: rgba(245, 252, 237, 0.8);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-fixed selection:text-on-primary-fixed">
+<nav class="sticky top-0 z-50 bg-[#f5fced] dark:bg-emerald-950/80 backdrop-blur-xl">
+<div class="flex justify-between items-center w-full px-6 py-4 max-w-8xl mx-auto">
+<div class="text-2xl font-black text-[#206223] dark:text-[#acf4a4] tracking-tighter font-headline">
+                Hanoi CleanCity
+            </div>
+<div class="hidden md:flex items-center gap-8 font-headline font-bold tracking-tight">
+<a class="text-[#206223] dark:text-[#acf4a4] border-b-2 border-[#206223] dark:border-[#acf4a4] pb-1" href="trangchu.html">Home</a>
+<a class="text-[#171d14] dark:text-emerald-100/70 hover:text-[#206223] transition-colors" href="bando.html">Map</a>
+<a class="text-[#171d14] dark:text-emerald-100/70 hover:text-[#206223] transition-colors" href="nguoidan.html">Reports</a>
+<a class="text-[#171d14] dark:text-emerald-100/70 hover:text-[#206223] transition-colors" href="canbo.html">Management</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 hover:bg-[#dee5d6] rounded-lg transition-all active:scale-95">
+<span class="material-symbols-outlined text-[#206223]">notifications</span>
+</button>
+<button class="p-2 hover:bg-[#dee5d6] rounded-lg transition-all active:scale-95">
+<span class="material-symbols-outlined text-[#206223]">account_circle</span>
+</button>
+</div>
+</div>
+</nav>
+<header class="relative min-h-[921px] flex items-center overflow-hidden bg-surface-container-low">
+<div class="absolute inset-0 z-0">
+<img alt="Hanoi Skyline" class="w-full h-full object-cover opacity-40 mix-blend-multiply" data-alt="Cinematic wide shot of Hanoi skyline featuring modern skyscrapers and traditional landmarks under a soft morning mist with golden sunlight reflecting on West Lake" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpM9QT6QHovuJgxIZlYJSP0LpRORC45LiamaGaxjqIntYPZL1yH6va1iPgx3xH6BP6K2xexpkYWudvXEQ4zcgi1rTycP7tL3pldyZGAWbWvAgRA9WBZpu7dST9hGmLh_ND1KgccX9BW_TOwYJxq58ydIw0VIOWWAirlKR53DcVf6i8Rr3LzHh40IpYRC7iQMHHJN7fPbu-g-2iNjzFSj1w2f9JVlCdSAPUUuR4GcHuWVOrEVEnE_3crFboVfANqH3os2ccKlPVSccQ"/>
+<div class="absolute inset-0 bg-gradient-to-r from-surface via-surface/60 to-transparent"></div>
+</div>
+<div class="container mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+<div class="lg:col-span-7">
+<h1 class="font-headline font-extrabold text-5xl lg:text-7xl text-primary leading-tight mb-6 tracking-tighter">
+                    Kiến tạo Thủ đô <br/><span class="text-secondary italic">Xanh &amp; Bền vững</span>
+</h1>
+<p class="text-xl text-on-surface-variant mb-10 max-w-xl leading-relaxed">
+                    Hệ thống quản lý đô thị thông minh giúp mỗi công dân trở thành một người bảo tồn thành phố. Báo cáo các vấn đề môi trường chỉ trong 30 giây.
+                </p>
+<div class="flex flex-wrap gap-4">
+<button class="px-8 py-4 bg-gradient-to-r from-primary to-primary-container text-on-primary font-bold rounded-xl shadow-lg shadow-primary/10 hover:shadow-primary/20 transition-all active:scale-95 text-lg">
+                        Báo cáo ngay
+                    </button>
+<button class="px-8 py-4 border-2 border-primary/20 text-primary font-bold rounded-xl hover:bg-primary-fixed/20 transition-all text-lg">
+                        Xem bản đồ thực tế
+                    </button>
+</div>
+</div>
+<div class="lg:col-span-5 hidden lg:block">
+<div class="relative">
+<div class="bg-surface-container-highest rounded-[3rem] p-4 shadow-2xl rotate-3">
+<img alt="Reporting Tool" class="rounded-[2.5rem] w-full h-[500px] object-cover" data-alt="Professional mobile app interface displayed on a modern smartphone screen showing a clean urban reporting dashboard with map and photo upload features" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqi4ds2YDMW0R9C81M6U0xtJpeIFd7UqYHshs6lvXlqr1xyM1Cw55--r7d5dsG_A1ddVDV2w1UdC3Cz_Sp1STTtEZgjnayC__SAyrGQsxWIg5-upkMTAflxuPv-fj_s-CXpKdhDsPUI1W6XNtzxZj1RvkK0DHQDtB4NHj2U-BLErG0H5ovZmRmeupQ7STkKHk-dJVosabpQ-VklYBlRURg_cg9HA7LOcy82Y3ZVRhvrN2c59EAiGufSm2i8I6SLKC9xiyXLRDjezZu"/>
+</div>
+<div class="absolute -bottom-10 -left-10 glass-panel p-6 rounded-3xl shadow-xl border border-white/20 max-w-xs">
+<div class="flex items-center gap-4 mb-3">
+<div class="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">verified</span>
+</div>
+<div>
+<p class="text-xs font-bold text-tertiary uppercase tracking-wider">Mới nhất</p>
+<p class="font-bold text-on-surface">Đã xử lý tại Hoàn Kiếm</p>
+</div>
+</div>
+<p class="text-sm text-on-surface-variant">Khu vực Hồ Gươm đã được làm sạch sau 2 giờ báo cáo.</p>
+</div>
+</div>
+</div>
+</div>
+</header>
+<section class="py-24 bg-surface">
+<div class="container mx-auto px-6">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+<div class="bg-surface-container-low p-10 rounded-[2.5rem] text-center group hover:bg-surface-container-high transition-colors">
+<div class="text-6xl font-headline font-black text-primary mb-2">1000+</div>
+<div class="text-tertiary font-bold tracking-widest uppercase text-xs mb-4">Báo cáo đã xử lý</div>
+<p class="text-on-surface-variant text-sm">Hành động thực tế cho kết quả thực tế mỗi ngày.</p>
+</div>
+<div class="bg-surface-container-low p-10 rounded-[2.5rem] text-center group hover:bg-surface-container-high transition-colors">
+<div class="text-6xl font-headline font-black text-secondary mb-2">20+</div>
+<div class="text-tertiary font-bold tracking-widest uppercase text-xs mb-4">Quận huyện tham gia</div>
+<p class="text-on-surface-variant text-sm">Mạng lưới kết nối toàn diện trên khắp địa bàn Hà Nội.</p>
+</div>
+<div class="bg-surface-container-low p-10 rounded-[2.5rem] text-center group hover:bg-surface-container-high transition-colors">
+<div class="text-6xl font-headline font-black text-tertiary mb-2">5 Tấn</div>
+<div class="text-tertiary font-bold tracking-widest uppercase text-xs mb-4">Rác thải đã thu gom</div>
+<p class="text-on-surface-variant text-sm">Giảm thiểu ô nhiễm, bảo vệ hệ sinh thái đô thị.</p>
+</div>
+</div>
+</div>
+</section>
+<section class="py-24 bg-surface-container-low">
+<div class="container mx-auto px-6">
+<div class="max-w-3xl mb-16">
+<h2 class="font-headline text-4xl font-extrabold text-on-surface mb-6 tracking-tight">Quy trình vận hành thông minh</h2>
+<p class="text-on-surface-variant text-lg leading-relaxed">Sử dụng công nghệ AI tiên tiến để tối ưu hóa việc phân loại và xử lý sự cố môi trường, đảm bảo mọi ý kiến đều được lắng nghe.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
+<!-- Step 1 -->
+<div class="relative z-10">
+<div class="bg-surface-container-lowest p-8 rounded-[2rem] h-full shadow-sm hover:shadow-md transition-shadow">
+<div class="w-16 h-16 bg-primary-fixed rounded-2xl flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-primary text-3xl">photo_camera</span>
+</div>
+<h3 class="font-headline font-bold text-xl mb-3">1. Ghi hình</h3>
+<p class="text-on-surface-variant text-sm">Chụp ảnh và định vị vị trí có rác thải hoặc vi phạm môi trường.</p>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="relative z-10">
+<div class="bg-surface-container-lowest p-8 rounded-[2rem] h-full shadow-sm hover:shadow-md transition-shadow">
+<div class="w-16 h-16 bg-secondary-fixed rounded-2xl flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-secondary text-3xl">neurology</span>
+</div>
+<h3 class="font-headline font-bold text-xl mb-3">2. AI Phân loại</h3>
+<p class="text-on-surface-variant text-sm">Hệ thống AI tự động phân tích mức độ và loại rác thải ngay lập tức.</p>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="relative z-10">
+<div class="bg-surface-container-lowest p-8 rounded-[2rem] h-full shadow-sm hover:shadow-md transition-shadow">
+<div class="w-16 h-16 bg-tertiary-fixed rounded-2xl flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-tertiary text-3xl">share_location</span>
+</div>
+<h3 class="font-headline font-bold text-xl mb-3">3. Điều phối</h3>
+<p class="text-on-surface-variant text-sm">Báo cáo được gửi trực tiếp tới đơn vị môi trường quận tương ứng.</p>
+</div>
+</div>
+<!-- Step 4 -->
+<div class="relative z-10">
+<div class="bg-primary p-8 rounded-[2rem] h-full shadow-lg">
+<div class="w-16 h-16 bg-primary-container rounded-2xl flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-on-primary-container text-3xl">task_alt</span>
+</div>
+<h3 class="font-headline font-bold text-xl mb-3 text-on-primary">4. Giải quyết</h3>
+<p class="text-on-primary/80 text-sm">Sự cố được xử lý và thông báo kết quả lại cho người báo cáo.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="py-24 bg-surface">
+<div class="container mx-auto px-6">
+<div class="bg-surface-container-highest rounded-[3.5rem] p-12 lg:p-20 overflow-hidden relative">
+<div class="absolute top-0 right-0 w-1/3 h-full opacity-10">
+<span class="material-symbols-outlined text-[300px] text-primary rotate-12">park</span>
+</div>
+<div class="relative z-10 lg:flex items-center justify-between">
+<div class="lg:max-w-2xl">
+<h2 class="font-headline text-4xl lg:text-5xl font-extrabold text-primary mb-8 tracking-tighter">
+                            Sẵn sàng hành động vì Hà Nội xanh?
+                        </h2>
+<p class="text-xl text-on-surface-variant mb-12 leading-relaxed">
+                            Tham gia cộng đồng hơn 50,000 tình nguyện viên và người dân đang nỗ lực mỗi ngày để bảo vệ vẻ đẹp của Thủ đô.
+                        </p>
+<div class="flex flex-col sm:flex-row gap-6">
+<div class="flex items-center gap-4 p-4 bg-surface rounded-2xl">
+<span class="material-symbols-outlined text-secondary">ios</span>
+<div>
+<p class="text-[10px] font-bold uppercase tracking-tighter text-tertiary">Download on</p>
+<p class="font-bold text-on-surface">App Store</p>
+</div>
+</div>
+<div class="flex items-center gap-4 p-4 bg-surface rounded-2xl">
+<span class="material-symbols-outlined text-primary">play_store_installed</span>
+<div>
+<p class="text-[10px] font-bold uppercase tracking-tighter text-tertiary">Get it on</p>
+<p class="font-bold text-on-surface">Google Play</p>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-12 lg:mt-0">
+<div class="w-48 h-48 bg-white p-4 rounded-3xl shadow-xl flex items-center justify-center mx-auto lg:mx-0">
+<!-- Representing a QR Code visually -->
+<div class="grid grid-cols-4 gap-1 w-full h-full opacity-20">
+<div class="bg-primary rounded-sm"></div><div class="bg-on-surface"></div><div class="bg-primary"></div><div class="bg-on-surface"></div>
+<div class="bg-on-surface"></div><div class="bg-primary"></div><div class="bg-on-surface"></div><div class="bg-primary"></div>
+<div class="bg-primary"></div><div class="bg-on-surface"></div><div class="bg-primary"></div><div class="bg-on-surface"></div>
+<div class="bg-on-surface"></div><div class="bg-primary"></div><div class="bg-on-surface"></div><div class="bg-primary"></div>
+</div>
+<span class="material-symbols-outlined absolute text-primary text-4xl">qr_code_2</span>
+</div>
+<p class="text-center mt-4 font-bold text-sm text-tertiary">Quét để tải ứng dụng</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<footer class="bg-surface-container-low pt-20 pb-12">
+<div class="container mx-auto px-6">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
+<div class="md:col-span-2">
+<div class="text-3xl font-black text-primary tracking-tighter font-headline mb-6">
+                        Hanoi CleanCity
+                    </div>
+<p class="text-on-surface-variant max-w-sm leading-relaxed mb-8">
+                        Dự án hợp tác giữa UBND Thành phố Hà Nội và Công ty Công nghệ Môi trường vì mục tiêu phát triển bền vững và đô thị thông minh.
+                    </p>
+<div class="flex gap-4">
+<a class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">social_leaderboard</span>
+</a>
+<a class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">share</span>
+</a>
+</div>
+</div>
+<div>
+<h4 class="font-headline font-bold text-on-surface mb-6">Liên kết</h4>
+<ul class="space-y-4 text-on-surface-variant">
+<li><a class="hover:text-primary transition-colors" href="#">Về chúng tôi</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Hướng dẫn sử dụng</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Chính sách bảo mật</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Điều khoản dịch vụ</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-headline font-bold text-on-surface mb-6">Liên hệ</h4>
+<ul class="space-y-4 text-on-surface-variant">
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-sm">mail</span>
+                            hotro@cleancity.vn
+                        </li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-sm">call</span>
+                            1900 123 456
+                        </li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-sm">location_on</span>
+                            Số 1 Liễu Giai, Ba Đình,<br/>Hà Nội, Việt Nam
+                        </li>
+</ul>
+</div>
+</div>
+<div class="pt-8 border-t border-outline-variant/15 text-center text-sm text-on-surface-variant">
+                © 2024 Hanoi CleanCity. Tất cả quyền được bảo lưu.
+            </div>
+</div>
+</footer>
+<!-- Mobile Bottom Navigation Shell -->
+<div class="md:hidden">
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-[#f5fced]/80 dark:bg-emerald-950/90 backdrop-blur-2xl rounded-t-[2rem] shadow-[0_-12px_32px_rgba(23,29,20,0.06)] border-t border-[#bfcaba]/15">
+<div class="flex flex-col items-center justify-center bg-[#acf4a4] dark:bg-[#206223] text-[#206223] dark:text-[#acf4a4] rounded-2xl px-6 py-2">
+<span class="material-symbols-outlined">home</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest mt-1">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#6b4f45] dark:text-emerald-200/50 hover:opacity-80 transition-transform active:scale-90">
+<span class="material-symbols-outlined">location_on</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest mt-1">Map</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#6b4f45] dark:text-emerald-200/50 hover:opacity-80 transition-transform active:scale-90">
+<span class="material-symbols-outlined">add_circle</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest mt-1">Report</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#6b4f45] dark:text-emerald-200/50 hover:opacity-80 transition-transform active:scale-90">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest mt-1">Profile</span>
+</div>
+</nav>
+</div>
+</body></html>

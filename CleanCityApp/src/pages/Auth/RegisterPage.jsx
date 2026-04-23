@@ -3,21 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import AuthShell from './AuthShell'
 import { ROUTES } from '../../utils/constants'
 import { useAuth } from '../../contexts/AuthContext'
-
-function parseApiError(err, fallback = 'Đăng ký thất bại, vui lòng thử lại.') {
-  const data = err?.response?.data
-  if (!data) return err?.message || fallback
-  if (typeof data === 'string') return data
-  if (typeof data?.message === 'string') return data.message
-  if (typeof data?.title === 'string') return data.title
-
-  if (data?.errors && typeof data.errors === 'object') {
-    const messages = Object.values(data.errors).flat().filter(Boolean)
-    if (messages.length > 0) return messages.join(' | ')
-  }
-
-  return fallback
-}
+import { parseApiError } from '../../utils/apiError'
 
 function passwordStrength(password) {
   let score = 0

@@ -3,10 +3,9 @@ import React, { useRef, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 
 const navLinks = [
-  { path: '/trang-chu', label: 'Home' },
-  { path: '/ban-do', label: 'Map' },
-  { path: '/nguoi-dan', label: 'Reports' },
-  { path: '/can-bo', label: 'Management' },
+  { path: '/ban-do', label: 'Bản đồ' },
+  { path: '/nguoi-dan', label: 'Báo cáo' },
+  { path: '/can-bo', label: 'Quản lý' },
 ]
 
 export default function TopNav() {
@@ -33,7 +32,7 @@ export default function TopNav() {
     setOpen(false);
     setMessage('Đăng xuất thành công!');
     setTimeout(() => setMessage(""), 3000);
-    navigate('/trang-chu');
+    navigate('/ban-do');
   };
 
   return (
@@ -41,10 +40,10 @@ export default function TopNav() {
       <div className="flex justify-between items-center w-full px-6 py-4 max-w-8xl mx-auto">
         <div className="flex items-center gap-8">
           <Link
-            to="/trang-chu"
+            to="/ban-do"
             className="text-2xl font-black text-[#206223] dark:text-[#acf4a4] tracking-tighter font-headline"
           >
-            Hanoi CleanCity
+            Hà Nội Xanh
           </Link>
           <div className="hidden md:flex items-center gap-6 font-headline font-bold tracking-tight">
             {navLinks.map(({ path, label }) => (
@@ -70,13 +69,16 @@ export default function TopNav() {
           )}
           {isAuthenticated ? (
             <>
-              <button className="p-2 hover:bg-[#dee5d6] dark:hover:bg-emerald-800/50 rounded-lg transition-all active:scale-95">
+              <button
+                aria-label="Thông báo"
+                className="p-2 hover:bg-[#dee5d6] dark:hover:bg-emerald-800/50 rounded-lg transition-colors active:scale-95"
+              >
                 <span className="material-symbols-outlined text-[#206223] dark:text-[#acf4a4]">
                   notifications
                 </span>
               </button>
               <button
-                className="p-2 hover:bg-[#dee5d6] dark:hover:bg-emerald-800/50 rounded-lg transition-all active:scale-95"
+                className="p-2 hover:bg-[#dee5d6] dark:hover:bg-emerald-800/50 rounded-lg transition-colors active:scale-95"
                 onClick={() => setOpen((v) => !v)}
                 aria-label="Tài khoản"
               >
@@ -109,13 +111,13 @@ export default function TopNav() {
             <>
               <Link
                 to="/dang-nhap"
-                className="px-4 py-2 rounded-xl font-bold text-primary border-2 border-primary hover:bg-primary hover:text-white transition-all mr-2"
+                className="px-4 py-2 rounded-xl font-bold text-primary border-2 border-primary hover:bg-primary hover:text-white transition-colors mr-2"
               >
                 Đăng nhập
               </Link>
               <Link
                 to="/dang-ky"
-                className="px-4 py-2 rounded-xl font-bold text-white bg-primary hover:bg-primary-container transition-all"
+                className="px-4 py-2 rounded-xl font-bold text-white bg-primary hover:bg-primary-container transition-colors"
               >
                 Đăng ký
               </Link>

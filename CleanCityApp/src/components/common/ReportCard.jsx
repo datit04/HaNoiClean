@@ -29,15 +29,16 @@ export default function ReportCard({ report, onClick }) {
   const statusInfo = REPORT_STATUS_LABEL[statusKey]
 
   return (
-    <div
+    <button
+      type="button"
       onClick={onClick}
-      className={`group bg-surface-container-lowest hover:bg-white transition-all duration-300 p-6 rounded-[1.5rem] flex flex-col md:flex-row gap-6 items-start md:items-center ${onClick ? 'cursor-pointer' : ''}`}
+      className={`group bg-surface-container-lowest hover:bg-white transition-colors duration-300 p-6 rounded-[1.5rem] flex flex-col md:flex-row gap-6 items-start md:items-center w-full text-left ${onClick ? 'cursor-pointer' : ''}`}
     >
       <div className="w-full md:w-32 h-24 rounded-xl overflow-hidden bg-surface-container flex-shrink-0">
         {imageUrl ? (
           <img
             src={imageUrl}
-            alt="Report"
+            alt={title}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           />
         ) : (
@@ -56,7 +57,7 @@ export default function ReportCard({ report, onClick }) {
             </span>
           )}
           <span className="text-xs font-medium text-outline">
-            #{id} - {timeAgo}
+             {timeAgo}
           </span>
         </div>
         <h4 className="text-lg font-bold text-on-surface leading-tight">{title}</h4>
@@ -73,12 +74,6 @@ export default function ReportCard({ report, onClick }) {
           </span>
         </div>
       </div>
-
-      <div className="flex md:flex-col gap-2 w-full md:w-auto">
-        <span className="p-2.5 text-tertiary group-hover:text-primary transition-colors">
-          <span className="material-symbols-outlined">arrow_forward</span>
-        </span>
-      </div>
-    </div>
+    </button>
   )
 }

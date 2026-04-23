@@ -9,6 +9,11 @@ const userApi = {
     }),
   getAll: () => api.get('/users'),
   delete: (id) => api.delete(`/users/${id}`),
+  toggleLock: (id) => api.put(`/users/${id}/toggle-lock`),
+  getRoles: (userId) => api.get(`/users/${userId}/roles`),
+  assignRoles: (userId, roleNames) => api.post(`/users/${userId}/roles`, { roleNames }),
+  removeRoles: (userId, roleNames) =>
+    api.delete(`/users/${userId}/roles`, { params: { roleNames } }),
 };
 
 export default userApi;

@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { clearAuthSession, readAuthToken } from './authStorage'
+import Swal from 'sweetalert2'
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || '/api',
@@ -18,7 +19,7 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// Handle 401 globally
+// Handle 401/403 globally
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -26,8 +27,19 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401 && !shouldSkipAuthRedirect) {
       clearAuthSession()
-      window.location.href = '/trang-chu'
+      window.location.href = '/ban-do'
     }
+
+    if (error.response?.status === 403) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Không có quyền truy cập',
+        text: 'Bạn không có quyền thực hiện thao tác này. Vui lòng liên hệ quản trị viên.',
+        confirmButtonText: 'Đã hiểu',
+        confirmButtonColor: '#206223',
+      })
+    }
+
     return Promise.reject(error)
   }
 )

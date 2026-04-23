@@ -1,7 +1,8 @@
+import api from './api'
+
 // Lấy thống kê tổng hợp báo cáo theo trạng thái
 // GET /api/reports/stats
 export const getReportStats = (params = {}) => api.get('/reports/stats', { params })
-import api from './api'
 
 // ─── ReportStatus enum (phải khớp với BE) ─────────────────────────────────
 // 0 = Submitted | 1 = Received | 2 = InProgress | 3 = Completed
@@ -58,7 +59,7 @@ export const normalizeReport = (report) => ({
  * @param {{ wardId?: number, categoryId?: number, status?: number, priority?: number, pageIndex?: number, pageSize?: number }} params
  * @returns Promise<{ items: Report[], totalRecords: number }>
  */
-export const getReports = (params = {}) => api.get('/reports', { params })
+export const getReports = (params = {}, options = {}) => api.get('/reports', { params, ...options })
 
 /**
  * GET /api/reports/my — báo cáo của người dùng hiện tại
@@ -75,7 +76,7 @@ export const getReportById = (id) => api.get(`/reports/${id}`)
  */
 export const getReportProgress = (id) => api.get(`/reports/${id}/progress`)
 
-export const getCategories = () => api.get('/categories')
+export const getCategories = (options = {}) => api.get('/categories', options)
 
 export const createCategory = (data) =>
   api.post('/categories', {
@@ -94,6 +95,27 @@ export const updateCategory = (id, data) =>
   })
 
 export const deleteCategory = (id) => api.delete(`/categories/${id}`)
+
+/**
+ * GET /api/categories/statistics
+ * @param {{ fromDate?: string, toDate?: string, wardId?: number, categoryId?: number, status?: number }} params
+ */
+export const getCategoryStatistics = (params = {}) =>
+  api.get('/categories/statistics', { params })
+
+/**
+ * GET /api/reports/topward
+ * @param {{ top?: number, fromDate?: string, toDate?: string }} params
+ */
+export const getTopWards = (params = {}) =>
+  api.get('/reports/topward', { params })
+
+/**
+ * GET /api/reports/weekly-stats
+ * @param {{ status?: number, wardId?: number, categoryId?: number }} params
+ */
+export const getWeeklyStats = (params = {}) =>
+  api.get('/reports/weekly-stats', { params })
 
 // ─── Teams ─────────────────────────────────────────────────────────────────
 export const getTeams = (params = {}) => api.get('/teams', { params })

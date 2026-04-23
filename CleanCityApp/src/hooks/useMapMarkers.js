@@ -60,7 +60,7 @@ export function useMapMarkers(initialFilters = {}) {
         categoryId: filters.categoryId,
         pageIndex: 1,
         pageSize: 1000,
-      })
+      }, { skipAuthRedirect: true })
       const items = (reportsRes.data?.items || []).map(normalizeReport)
       const parsedFallback = items.map(normalizeMarker).filter(Boolean)
       setMarkers(parsedFallback)

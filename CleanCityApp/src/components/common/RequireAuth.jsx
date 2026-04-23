@@ -9,7 +9,7 @@ export default function RequireAuth({ children }) {
   if (loading) {
     return (
       <div className="min-h-screen bg-surface flex items-center justify-center text-on-surface-variant">
-        Dang tai phien dang nhap...
+        Đang tải phiên đăng nhập...
       </div>
     )
   }

@@ -14,3 +14,6 @@ export const updateTeam = (id, data) => api.put(`/teams/${id}`, data);
 
 // Xóa đội
 export const deleteTeam = (id) => api.delete(`/teams/${id}`);
+
+// Lấy hiệu suất đội ngũ (timeout dài hơn vì query tổng hợp)
+export const getTeamPerformance = (params = {}) => api.get('/teams/performance', { params, timeout: 30000 });

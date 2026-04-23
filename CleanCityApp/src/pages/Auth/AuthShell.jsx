@@ -15,7 +15,7 @@ export default function AuthShell({
     <div className="min-h-screen bg-surface text-on-surface font-body flex flex-col">
       <header className="w-full py-5 px-6">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link to={ROUTES.HOME} className="text-2xl font-black text-primary tracking-tighter font-headline">
+          <Link to={ROUTES.MAP} className="text-2xl font-black text-primary tracking-tighter font-headline">
             Hanoi CleanCity
           </Link>
           <div className="text-xs text-on-surface-variant font-semibold uppercase tracking-widest">

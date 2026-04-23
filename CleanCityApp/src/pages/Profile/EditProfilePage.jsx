@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import userApi from '../../services/userApi';
@@ -68,6 +68,7 @@ export default function EditProfilePage() {
     }));
   }, [user?.avatar, user?.avatarUrl, user?.fullName, user?.dob, user?.email, user?.phoneNumber, user?.wardId, user?.teamId]);
   const [avatarFile, setAvatarFile] = useState(null);
+  const fileInputRef = useRef(null);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -123,16 +124,10 @@ export default function EditProfilePage() {
         else if (err.response.data.message) msg += '\n' + err.response.data.message;
         else if (err.response.data.error) msg += '\n' + err.response.data.error;
         else msg += '\n' + JSON.stringify(err.response.data);
-        // Log chi tiết lỗi backend
-        // eslint-disable-next-line no-console
-        console.error('Backend error:', err.response.data);
       } else if (err.message) {
         msg += '\n' + err.message;
       }
       swalError('Cập nhật thất bại', msg);
-      // Debug log
-      // eslint-disable-next-line no-console
-      console.error('Update profile error:', err);
     }
   };
 
@@ -172,17 +167,17 @@ export default function EditProfilePage() {
                 <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-surface-container-highest ring-4 ring-primary-fixed/30">
                   <img alt="Profile Preview" src={avatarPreview || '/default-avatar.png'} className="w-full h-full object-cover" />
                 </div>
-                <label className="absolute bottom-0 right-0 bg-primary text-on-primary p-2 rounded-full shadow-lg hover:scale-110 transition-transform cursor-pointer">
+                <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleAvatarChange} />
+                <button type="button" onClick={() => fileInputRef.current?.click()} className="absolute bottom-0 right-0 bg-primary text-on-primary p-2 rounded-full shadow-lg hover:scale-110 transition-transform cursor-pointer">
                   <span className="material-symbols-outlined text-sm">photo_camera</span>
-                  <input type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
-                </label>
+                </button>
               </div>
               <div className="text-center sm:text-left">
                 <h3 className="text-xl font-bold mb-1">Ảnh của bạn</h3>
                 <p className="text-sm text-on-surface-variant mb-4">Tải lên một bức ảnh rõ ràng để giúp đội nhận diện bạn trong các sự kiện dọn dẹp.</p>
                 <div className="flex gap-3 justify-center sm:justify-start">
-                  <button type="button" className="bg-primary text-on-primary px-4 py-2 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity">Tải lên mới</button>
-                  <button type="button" className="text-primary font-semibold text-sm px-4 py-2 hover:bg-surface-container-highest rounded-xl transition-colors">Xóa</button>
+                  <button type="button" onClick={() => fileInputRef.current?.click()} className="bg-primary text-on-primary px-4 py-2 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity">Tải lên mới</button>
+                  <button type="button" onClick={() => { setAvatarFile(null); setAvatarPreview(''); setForm(prev => ({ ...prev, avatar: '' })); }} className="text-primary font-semibold text-sm px-4 py-2 hover:bg-surface-container-highest rounded-xl transition-colors">Xóa</button>
                 </div>
               </div>
             </div>
@@ -269,7 +264,7 @@ export default function EditProfilePage() {
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input name="twoFA" type="checkbox" className="sr-only peer" checked={form.twoFA} onChange={handleChange} />
-                    <div className="w-11 h-6 bg-outline-variant/30 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                    <div className="w-11 h-6 bg-outline-variant/30 peer-focus-visible:ring-2 peer-focus-visible:ring-primary peer-focus-visible:ring-offset-2 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                   </label>
                 </div>
                 <a href="#" className="flex items-center justify-between p-4 bg-surface-container-highest rounded-2xl group hover:bg-surface-variant transition-colors">

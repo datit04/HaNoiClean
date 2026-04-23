@@ -1,7 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 
 const navLinks = [
-  { path: '/trang-chu', label: 'Home', icon: 'home' },
   { path: '/ban-do', label: 'Map', icon: 'location_on' },
   { path: '/nguoi-dan', label: 'Report', icon: 'add_circle' },
   { path: '/can-bo', label: 'Profile', icon: 'person' },

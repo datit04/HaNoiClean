@@ -3,21 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import AuthShell from './AuthShell'
 import { ROUTES } from '../../utils/constants'
 import { useAuth } from '../../contexts/AuthContext'
-
-function parseApiError(err, fallback = 'Dang nhap that bai, vui long thu lai.') {
-  const data = err?.response?.data
-  if (!data) return err?.message || fallback
-  if (typeof data === 'string') return data
-  if (typeof data?.message === 'string') return data.message
-  if (typeof data?.title === 'string') return data.title
-
-  if (data?.errors && typeof data.errors === 'object') {
-    const messages = Object.values(data.errors).flat().filter(Boolean)
-    if (messages.length > 0) return messages.join(' | ')
-  }
-
-  return fallback
-}
+import { parseApiError } from '../../utils/apiError'
 
 export default function LoginPage() {
   const { login, isAuthenticated, loading } = useAuth()
@@ -78,30 +64,38 @@ export default function LoginPage() {
         )}
 
         <div className="space-y-2">
-          <label className="block text-sm font-semibold text-on-surface-variant">Tên đăng nhập</label>
+          <label htmlFor="username" className="block text-sm font-semibold text-on-surface-variant">Tên đăng nhập</label>
           <input
+            id="username"
             type="text"
+            name="username"
             value={form.username}
             onChange={(e) => updateField('username', e.target.value)}
             placeholder="nguyenvana"
+            autoComplete="username"
+            spellCheck={false}
             className="w-full px-5 py-4 bg-surface-container-low border-0 rounded-xl focus:ring-2 focus:ring-primary/30"
           />
         </div>
 
         <div className="space-y-2">
-          <label className="block text-sm font-semibold text-on-surface-variant">Mật khẩu</label>
+          <label htmlFor="password" className="block text-sm font-semibold text-on-surface-variant">Mật khẩu</label>
           <div className="relative">
             <input
+              id="password"
               type={showPassword ? 'text' : 'password'}
+              name="password"
               value={form.password}
               onChange={(e) => updateField('password', e.target.value)}
               placeholder="••••••••"
+              autoComplete="current-password"
               className="w-full px-5 py-4 pr-12 bg-surface-container-low border-0 rounded-xl focus:ring-2 focus:ring-primary/30"
             />
             <button
               type="button"
               onClick={() => setShowPassword((prev) => !prev)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary"
+              aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary focus-visible:ring-2 focus-visible:ring-primary rounded"
             >
               <span className="material-symbols-outlined text-[20px]">
                 {showPassword ? 'visibility_off' : 'visibility'}
@@ -130,18 +124,20 @@ export default function LoginPage() {
           disabled={submitting}
           className="btn-primary w-full py-4 text-base shadow-primary/20 hover:opacity-95"
         >
-          {submitting ? 'Đang xử lý...' : 'Đăng nhập'}
+          {submitting ? 'Đang xử lý…' : 'Đăng nhập'}
         </button>
 
         <div className="grid grid-cols-2 gap-4 pt-4">
           <button
             type="button"
+            aria-label="Đăng nhập với Google"
             className="py-3 rounded-xl border border-outline-variant/40 text-sm font-semibold hover:bg-surface-container-low"
           >
             Google
           </button>
           <button
             type="button"
+            aria-label="Đăng nhập với Facebook"
             className="py-3 rounded-xl border border-outline-variant/40 text-sm font-semibold hover:bg-surface-container-low"
           >
             Facebook

@@ -10,6 +10,7 @@ export const ROUTES = {
   STAFF_REPORTS: '/can-bo/reports',
   STAFF_ACCOUNTS: '/can-bo/accounts',
   MAP: '/ban-do',
+  COMMUNITY: '/cong-dong',
 }
 
 export const REPORT_STATUS = {

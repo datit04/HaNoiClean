@@ -7,47 +7,26 @@ import { useTopWards } from '../../hooks/useTopWards'
 import { useWeeklyStats } from '../../hooks/useWeeklyStats'
 import { useTeamPerformance } from '../../hooks/useTeamPerformance'
 import { ROUTES } from '../../utils/constants'
+import { ReportStatus } from '../../services/reportService'
 
 
 
-const RECENT_ACTIVITIES = [
-  {
-    icon: 'delete',
-    color: 'bg-primary',
-    title: 'Đống rác thải trái phép',
-    location: 'Hàng Trống, Hoàn Kiếm',
-    badge: 'ĐÃ XỬ LÝ',
-    badgeClass: 'bg-primary/10 text-primary',
-    time: '2 phút trước',
-  },
-  {
-    icon: 'construction',
-    color: 'bg-secondary',
-    title: 'Vỉa hè bị hư hỏng',
-    location: 'Kim Mã, Ba Đình',
-    badge: 'ĐANG CHỜ DUYỆT',
-    badgeClass: 'bg-secondary/10 text-secondary',
-    time: '14 phút trước',
-  },
-  {
-    icon: 'report',
-    color: 'bg-error',
-    title: 'Cống thoát nước bị tràn',
-    location: 'Lý Thường Kiệt',
-    badge: 'KHẨN CẤP',
-    badgeClass: 'bg-error/10 text-error',
-    time: '45 phút trước',
-  },
-  {
-    icon: 'park',
-    color: 'bg-primary-container',
-    title: 'Cành cây bị gãy đổ',
-    location: 'Đường Thanh Niên',
-    badge: 'ĐANG ĐIỀU PHỐI',
-    badgeClass: 'bg-primary/10 text-primary',
-    time: '1 giờ trước',
-  },
-]
+const STATUS_META = {
+  submitted:  { label: 'ĐANG CHỜ DUYỆT', badgeClass: 'bg-secondary/10 text-secondary', icon: 'schedule', color: 'bg-secondary' },
+  received:   { label: 'ĐÃ TIẾP NHẬN',   badgeClass: 'bg-tertiary/10 text-tertiary',   icon: 'inbox',    color: 'bg-tertiary' },
+  processing: { label: 'ĐANG XỬ LÝ',     badgeClass: 'bg-primary/10 text-primary',     icon: 'build',    color: 'bg-primary' },
+  done:       { label: 'ĐÃ XỬ LÝ',       badgeClass: 'bg-primary/10 text-primary',     icon: 'check',    color: 'bg-primary' },
+  rejected:   { label: 'TỪ CHỐI',         badgeClass: 'bg-error/10 text-error',         icon: 'close',    color: 'bg-error' },
+}
+
+function timeAgo(dateStr) {
+  if (!dateStr) return ''
+  const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000)
+  if (diff < 60) return `${diff} giây trước`
+  if (diff < 3600) return `${Math.floor(diff / 60)} phút trước`
+  if (diff < 86400) return `${Math.floor(diff / 3600)} giờ trước`
+  return `${Math.floor(diff / 86400)} ngày trước`
+}
 
 const ABBR_COLORS = [
   { text: 'text-primary', bg: 'bg-primary/10' },
@@ -75,6 +54,7 @@ function buildDonutSegments(stats) {
 
 export default function CanBoDashboardPage() {
   const { totalRecords } = useReports({ pageSize: 1 })
+  const { reports: recentReports, loading: recentLoading } = useReports({ pageSize: 5, pageIndex: 1 })
   const { stats: catStats, total: catTotal, loading: catLoading } = useCategoryStatistics()
   const navigate = useNavigate()
 
@@ -92,7 +72,7 @@ export default function CanBoDashboardPage() {
   return (
     <div className="space-y-8">
       {/* Stats cards */}
-      <BentoStats totalReports={totalRecords || 1284} />
+      <BentoStats totalReports={totalRecords || 0} />
 
       {/* Bar chart + Donut */}
       <section className="grid grid-cols-12 gap-6">
@@ -124,13 +104,15 @@ export default function CanBoDashboardPage() {
                 {/* Bars */}
                 <div className="absolute inset-0 flex justify-between items-end px-2">
                   {weekLoading ? (
-                    Array.from({ length: 7 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className="w-[8%] bg-surface-container-high rounded-t-lg animate-pulse"
-                        style={{ height: `${20 + i * 10}%` }}
-                      />
-                    ))
+                    <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-on-surface-variant">
+                      <span className="material-symbols-outlined text-3xl text-outline animate-pulse">bar_chart</span>
+                      <p className="text-xs font-medium">Đang tải dữ liệu...</p>
+                    </div>
+                  ) : weekBars.length === 0 ? (
+                    <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-on-surface-variant">
+                      <span className="material-symbols-outlined text-3xl text-outline">bar_chart</span>
+                      <p className="text-xs font-medium">Không có dữ liệu</p>
+                    </div>
                   ) : (
                     weekBars.map((bar) => (
                       <div
@@ -148,13 +130,15 @@ export default function CanBoDashboardPage() {
               </div>
             </div>
             {/* X-Axis Labels */}
+            {!weekLoading && weekBars.length > 0 && (
             <div className="flex justify-between pl-8 mt-2">
-              {(weekLoading ? Array.from({ length: 7 }).map(() => ({ label: '' })) : weekBars).map((bar, i) => (
+              {weekBars.map((bar, i) => (
                 <span key={i} className="w-[14.28%] text-center text-[10px] font-black text-on-surface-variant/60">
                   {bar.label ? bar.label.replace('Thứ ', 'T').replace('Chủ Nhật', 'CN') : '·'}
                 </span>
               ))}
             </div>
+            )}
           </div>
         </div>
 
@@ -245,16 +229,12 @@ export default function CanBoDashboardPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Map thumbnail */}
-            <div className="rounded-xl overflow-hidden h-64 bg-surface-container relative group">
-              <div
-                className="absolute inset-0 bg-cover bg-center"
-                style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuACi1_6Aywy6p5SR9oupsWGwC16fAhI7oFM-61lxdi4zXRaJgqGcBOvB3dmw-c68oact8jG6F64cyIAM4TnLGfvKXc9YD00-owrcX8QLKlSF8IVRKjkfi2n-UVhhwJH99VpkH7ORoficSJSJOiRZPuNLgJcMWmLo6t-eLo-8NoOSsiIUNr5XYHy7GWTRM4m9FeHhHeEy5AZqSRn2rcIlZbszjD2Q3v5p8-crQdl9gRG27Wip6QHK1lbF25dJCyaPgFf2UtZMmHL7KnK')" }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-on-surface/60 to-transparent" />
-              <div className="absolute bottom-4 left-4">
-                <p className="text-white font-bold text-sm">Bản đồ Nhiệt Thời gian thực</p>
-                <p className="text-white/70 text-[10px]">Cập nhật 2 phút trước</p>
-              </div>
+            <div className="rounded-xl overflow-hidden h-64 bg-surface-container relative flex flex-col items-center justify-center gap-2 text-on-surface-variant">
+              <span className="material-symbols-outlined text-4xl text-outline">map</span>
+              <p className="text-sm font-medium">Bản đồ nhiệt</p>
+              <Link to={ROUTES.MAP} className="text-xs text-secondary font-bold hover:underline flex items-center gap-1">
+                Mở bản đồ <span className="material-symbols-outlined text-xs">open_in_new</span>
+              </Link>
             </div>
 
             {/* Top wards */}
@@ -295,27 +275,46 @@ export default function CanBoDashboardPage() {
         <div className="bg-surface-container-lowest p-8 rounded-3xl shadow-sm border border-outline-variant/5">
           <h4 className="text-xl font-extrabold font-headline mb-6">Hoạt động Gần đây</h4>
           <div className="space-y-6 relative">
-            <div className="absolute left-[1.125rem] top-2 bottom-2 w-px border-l-2 border-dashed border-tertiary-fixed-dim" />
-            {RECENT_ACTIVITIES.map((act, i) => (
-              <div key={i} className="relative flex gap-4 pl-10">
-                <div className={`absolute left-0 top-1 w-6 h-6 ${act.color} rounded-full flex items-center justify-center z-10`}>
-                  <span
-                    className="material-symbols-outlined text-white text-[14px]"
-                    style={{ fontVariationSettings: "'FILL' 1" }}
-                  >
-                    {act.icon}
-                  </span>
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-on-surface leading-tight">{act.title}</p>
-                  <p className="text-xs text-on-surface-variant mb-2">{act.location}</p>
-                  <span className={`text-[10px] font-bold px-2 py-1 ${act.badgeClass} rounded-full uppercase`}>
-                    {act.badge}
-                  </span>
-                  <p className="text-[10px] text-on-surface-variant mt-2 font-medium">{act.time}</p>
-                </div>
-              </div>
-            ))}
+            {recentLoading ? (
+              <>
+                <div className="absolute left-[1.125rem] top-2 bottom-2 w-px border-l-2 border-dashed border-tertiary-fixed-dim" />
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="flex gap-4 pl-10">
+                    <div className="absolute left-0 w-6 h-6 bg-surface-container-high rounded-full animate-pulse" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-surface-container-high rounded animate-pulse w-3/4" />
+                      <div className="h-3 bg-surface-container-high rounded animate-pulse w-1/2" />
+                    </div>
+                  </div>
+                ))}
+              </>
+            ) : recentReports.length === 0 ? (
+              <p className="text-xs text-on-surface-variant text-center py-8">Không có dữ liệu</p>
+            ) : (
+              <>
+                <div className="absolute left-[1.125rem] top-2 bottom-2 w-px border-l-2 border-dashed border-tertiary-fixed-dim" />
+                {recentReports.slice(0,3).map((report) => {
+                  const meta = STATUS_META[report.statusKey] ?? STATUS_META.submitted
+                  return (
+                    <div key={report.id} className="relative flex gap-4 pl-10">
+                      <div className={`absolute left-0 top-1 w-6 h-6 ${meta.color} rounded-full flex items-center justify-center z-10`}>
+                        <span className="material-symbols-outlined text-white text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                          {meta.icon}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-on-surface leading-tight">{report.title}</p>
+                        <p className="text-xs text-on-surface-variant mb-2">{report.location}</p>
+                        <span className={`text-[10px] font-bold px-2 py-1 ${meta.badgeClass} rounded-full uppercase`}>
+                          {meta.label}
+                        </span>
+                        <p className="text-[10px] text-on-surface-variant mt-2 font-medium">{timeAgo(report.createdAt)}</p>
+                      </div>
+                    </div>
+                  )
+                })}
+              </>
+            )}
           </div>
           <Link
             to={ROUTES.STAFF_REPORTS}

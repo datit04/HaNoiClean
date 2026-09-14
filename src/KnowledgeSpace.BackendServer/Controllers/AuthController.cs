@@ -26,18 +26,16 @@ namespace KnowledgeSpace.BackendServer.Controllers
         }
 
         /// <summary>
-        /// ??ng ký tài kho?n m?i
+        /// Đăng ký tài khoản mới
         /// </summary>
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            var existingUser = await _userManager.FindByNameAsync(request.UserName);
-            if (existingUser != null)
-                return BadRequest(new { message = "Tên đăng nhập đã tồn tại" });
-
-            var existingEmail = await _userManager.FindByEmailAsync(request.Email);
-            if (existingEmail != null)
-                return BadRequest(new { message = "Email đã được sử dụng" });
+            // Validate model state
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ApiBadRequestResponse(ModelState));
+            }
 
             var user = new User
             {
@@ -54,10 +52,14 @@ namespace KnowledgeSpace.BackendServer.Controllers
             var result = await _userManager.CreateAsync(user, request.Password);
             if (!result.Succeeded)
             {
+                // Log chi tiết lỗi
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                Console.WriteLine($"[REGISTER ERROR] {errors}");
+
                 return BadRequest(new ApiBadRequestResponse(result));
             }
 
-            // Gán role m?c ??nh
+            // Tự động assign role Citizen cho user mới
             await _userManager.AddToRoleAsync(user, SystemConstants.Roles.Citizen);
 
             return Ok(new
@@ -76,21 +78,6 @@ namespace KnowledgeSpace.BackendServer.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            // Ki?m tra user t?n t?i
-            var user = await _userManager.FindByNameAsync(request.UserName);
-            if (user == null)
-                return Unauthorized(new { message = "Tên ??ng nh?p ho?c m?t kh?u không ?úng" });
-
-            // Ki?m tra tr?ng thái
-            if (user.Status == UserStatus.Banned)
-                return Unauthorized(new { message = "Tài kho?n ?ã b? khoá" });
-
-            // Ki?m tra m?t kh?u
-            var passwordValid = await _userManager.CheckPasswordAsync(user, request.Password);
-            if (!passwordValid)
-                return Unauthorized(new { message = "Tên ??ng nh?p ho?c m?t kh?u không ?úng" });
-
-            // G?i IdentityServer token endpoint n?i b? ?? l?y access_token
             var serverUrl = $"{Request.Scheme}://{Request.Host}";
 
             using var httpClient = new HttpClient();
@@ -110,7 +97,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
             if (!response.IsSuccessStatusCode)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                return Unauthorized(new { message = "??ng nh?p th?t b?i", error = errorContent });
+                return Unauthorized(new { message = "Đăng nhập thất bại", error = errorContent });
             }
 
             var tokenResponse = await response.Content.ReadAsStringAsync();
@@ -141,7 +128,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
 
             if (!response.IsSuccessStatusCode)
             {
-                return Unauthorized(new { message = "Refresh token không h?p l? ho?c ?ã h?t h?n" });
+                return Unauthorized(new { message = "Refresh token không hợp lệ hoặc đã hết hạn" });
             }
 
             var tokenResponse = await response.Content.ReadAsStringAsync();

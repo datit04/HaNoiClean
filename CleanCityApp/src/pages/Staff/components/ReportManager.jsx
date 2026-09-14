@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useCallback, useEffect, useState } from 'react'
 import DispatchModal from './DispatchModal'
+import ReportDetailSidebar from './ReportDetailSidebar'
 import SelectionBar from '../../../components/common/SelectionBar'
 import Pagination from '../../../components/common/Pagination'
 import {
@@ -13,8 +13,9 @@ import {
   deleteReport,
 } from '../../../services/reportService'
 import { swalSuccess, swalError, swalConfirm, swalConfirmDelete, swalLoading, swalClose } from '../../../utils/swal'
+import { parseApiError } from '../../../utils/apiError'
 
-const PAGE_SIZE = 8
+const PAGE_SIZE = 6
 
 const STATUS_OPTIONS = [
   { value: '', label: 'Tất cả trạng thái' },
@@ -42,6 +43,7 @@ export default function ReportManager() {
   const [wards, setWards] = useState([])
   const [page, setPage] = useState(1)
   const [dispatchReport, setDispatchReport] = useState(null)
+  const [detailReportId, setDetailReportId] = useState(null)
 
   const [filterStatus, setFilterStatus] = useState('')
   const [filterCategory, setFilterCategory] = useState('')
@@ -52,13 +54,13 @@ export default function ReportManager() {
   useEffect(() => {
     getCategories()
       .then((res) => setCategories(Array.isArray(res.data) ? res.data : []))
-      .catch(() => {})
+      .catch(() => { })
     getWards()
       .then((res) => {
         const data = res.data
         setWards(Array.isArray(data) ? data : Array.isArray(data?.items) ? data.items : [])
       })
-      .catch(() => {})
+      .catch(() => { })
     // Lấy thống kê tổng hợp toàn bộ báo cáo
     getReportStats()
       .then((res) => setStatsAll(res.data))
@@ -91,15 +93,6 @@ export default function ReportManager() {
 
   const totalPages = Math.max(1, Math.ceil(totalRecords / PAGE_SIZE))
 
-  // Stats computed from totalRecords + current filtered data
-  const stats = useMemo(() => {
-    const countByStatus = { submitted: 0, received: 0, processing: 0, done: 0, rejected: 0 }
-    reports.forEach((r) => {
-      if (countByStatus[r.statusKey] !== undefined) countByStatus[r.statusKey]++
-    })
-    return countByStatus
-  }, [reports])
-
   const handleResetFilters = () => {
     setFilterStatus('')
     setFilterCategory('')
@@ -119,7 +112,8 @@ export default function ReportManager() {
       swalSuccess('Đã xoá báo cáo!')
       fetchReports()
     } catch (err) {
-      if (err.response?.status !== 403) swalError('Không thể xoá báo cáo')
+      const msg = parseApiError(err, 'Không thể xoá báo cáo')
+      if (msg) swalError(msg)
     }
   }
 
@@ -149,7 +143,7 @@ export default function ReportManager() {
   const statCards = [
     {
       label: 'Tổng báo cáo',
-      value: totalRecords,
+      value: statsAll.total || totalRecords,
       icon: 'description',
       color: 'bg-blue-500',
       bg: 'bg-blue-50',
@@ -157,7 +151,7 @@ export default function ReportManager() {
     },
     {
       label: 'Chờ xử lý',
-      value: stats.submitted + stats.received,
+      value: Math.max(0, (statsAll.total || totalRecords) - (statsAll.inProgress || 0) - (statsAll.completed || 0) - (statsAll.rejected || 0)),
       icon: 'pending_actions',
       color: 'bg-yellow-500',
       bg: 'bg-yellow-50',
@@ -165,7 +159,7 @@ export default function ReportManager() {
     },
     {
       label: 'Đang xử lý',
-      value: stats.processing,
+      value: statsAll.inProgress || 0,
       icon: 'engineering',
       color: 'bg-orange-500',
       bg: 'bg-orange-50',
@@ -173,7 +167,7 @@ export default function ReportManager() {
     },
     {
       label: 'Hoàn thành',
-      value: stats.done,
+      value: statsAll.completed || 0,
       icon: 'check_circle',
       color: 'bg-green-500',
       bg: 'bg-green-50',
@@ -182,56 +176,11 @@ export default function ReportManager() {
   ]
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 relative">
       {/* Header giữ nguyên */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="font-headline text-3xl font-extrabold text-on-surface mt-1">Quản lý Báo cáo</h2>
-        </div>
-      </div>
-
-      {/* Stats Grid tổng hợp toàn bộ */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {/* Tổng số báo cáo */}
-        <div className="bg-surface-container-highest p-6 rounded-3xl relative overflow-hidden group">
-          <div className="relative z-10">
-            <p className="text-sm font-bold text-primary/70 uppercase tracking-widest mb-1">Tổng số báo cáo</p>
-            <h3 className="text-4xl font-extrabold text-primary font-headline">{statsAll.total}</h3>
-          </div>
-          <span className="material-symbols-outlined absolute -right-4 -bottom-4 text-9xl text-primary/5 rotate-12 group-hover:rotate-0 transition-transform duration-500">assessment</span>
-        </div>
-        {/* Đang xử lý */}
-        <div className="bg-surface-container-low p-6 rounded-3xl border border-outline-variant/10">
-          <p className="text-sm font-bold text-secondary uppercase tracking-widest mb-1">Đang xử lý</p>
-          <h3 className="text-4xl font-extrabold text-secondary font-headline">{statsAll.inProgress}</h3>
-          <div className="mt-4 flex items-center gap-2">
-            <div className="w-full bg-secondary-fixed h-1.5 rounded-full overflow-hidden">
-              <div className="bg-secondary h-full rounded-full" style={{ width: `${statsAll.total ? Math.round((statsAll.inProgress / statsAll.total) * 100) : 0}%` }}></div>
-            </div>
-            <span className="text-xs font-bold text-secondary">{statsAll.total ? Math.round((statsAll.inProgress / statsAll.total) * 100) : 0}%</span>
-          </div>
-        </div>
-        {/* Đã hoàn thành */}
-        <div className="bg-surface-container-low p-6 rounded-3xl border border-outline-variant/10">
-          <p className="text-sm font-bold text-primary uppercase tracking-widest mb-1">Đã hoàn thành</p>
-          <h3 className="text-4xl font-extrabold text-primary font-headline">{statsAll.completed}</h3>
-          <div className="mt-4 flex items-center gap-2">
-            <div className="w-full bg-primary-fixed h-1.5 rounded-full overflow-hidden">
-              <div className="bg-primary h-full rounded-full" style={{ width: `${statsAll.total ? Math.round((statsAll.completed / statsAll.total) * 100) : 0}%` }}></div>
-            </div>
-            <span className="text-xs font-bold text-primary">{statsAll.total ? Math.round((statsAll.completed / statsAll.total) * 100) : 0}%</span>
-          </div>
-        </div>
-        {/* Từ chối */}
-        <div className="bg-surface-container-low p-6 rounded-3xl border border-outline-variant/10">
-          <p className="text-sm font-bold text-error uppercase tracking-widest mb-1">Từ chối</p>
-          <h3 className="text-4xl font-extrabold text-error font-headline">{statsAll.rejected}</h3>
-          <div className="mt-4 flex items-center gap-2">
-            <div className="w-full bg-error-container h-1.5 rounded-full overflow-hidden">
-              <div className="bg-error h-full rounded-full" style={{ width: `${statsAll.total ? Math.round((statsAll.rejected / statsAll.total) * 100) : 0}%` }}></div>
-            </div>
-            <span className="text-xs font-bold text-error">{statsAll.total ? Math.round((statsAll.rejected / statsAll.total) * 100) : 0}%</span>
-          </div>
         </div>
       </div>
 
@@ -359,6 +308,15 @@ export default function ReportManager() {
                       <td className="px-5 py-4 text-right">
                         <div className="flex items-center justify-end gap-1">
                           <button
+                            aria-label="Chi tiết báo cáo"
+                            title="Chi tiết"
+                            onClick={() => setDetailReportId(r.id)}
+                            className="px-3 py-2 rounded-xl bg-surface-container-highest hover:bg-surface-container transition-colors text-sm font-semibold"
+                          >
+                            Chi tiết
+                          </button>
+                          <button
+                            aria-label="Điều phối báo cáo"
                             title="Điều phối"
                             onClick={() => setDispatchReport(r)}
                             className="p-2 rounded-xl hover:bg-primary/10 text-primary transition-colors"
@@ -366,6 +324,7 @@ export default function ReportManager() {
                             <span className="material-symbols-outlined text-xl">assignment_turned_in</span>
                           </button>
                           <button
+                            aria-label="Xoá báo cáo"
                             title="Xoá báo cáo"
                             onClick={() => handleDeleteReport(r)}
                             className="p-2 rounded-xl hover:bg-error/10 text-error transition-colors"
@@ -385,69 +344,6 @@ export default function ReportManager() {
         <Pagination currentPage={page} totalPages={totalPages} totalRecords={totalRecords} label="báo cáo" onPageChange={setPage} />
       </div>
 
-      {/* ── Bottom Section: Map + Activity ───────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Hotspot Map */}
-        <div className="bg-surface-container-highest rounded-[2rem] overflow-hidden relative min-h-[280px]">
-          <div className="absolute inset-0 z-0">
-            <img
-              alt="Hanoi map"
-              className="w-full h-full object-cover opacity-80 grayscale-[0.2]"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9No8O6mIenEwtx588mU7j-Arp9CKmamzNPp8i37QpK16UR1hctH3MImVm5azkjwjZ5GFyrCHkAIM0SX4cDiPFd3GS9wpKgFs3_EDjQILdbrqzZ4oyQ_w2nZQZ6I6yacEKJoGcsczCqU6-nCV_k72JK4ahHVv-1_4reiwPR9FsG9vjNkw2YVK1Z-oM3H3Cxbbgw-LYZMU6CzPLcC5K_U4hBkXZgk-FsMz6otoM5ftzHBXqVB8zRp2VE7k7h1ewtgCC-lBW1uVrxwff"
-            />
-          </div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10 pointer-events-none" />
-          <div className="absolute bottom-5 left-5 right-5 z-20">
-            <div className="bg-white/90 backdrop-blur-xl p-4 rounded-2xl shadow-xl flex items-center justify-between">
-              <div>
-                <span className="block text-xs font-bold uppercase text-tertiary tracking-widest">
-                  Bản đồ điểm nóng
-                </span>
-                <span className="text-sm font-bold text-on-surface">Theo dõi khu vực nhiều báo cáo</span>
-              </div>
-              <Link to="/ban-do">
-                <span className="material-symbols-outlined text-secondary">farsight_digital</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Recent Activity */}
-        <div className="bg-surface rounded-3xl border border-outline-variant p-6 space-y-4">
-          <h3 className="font-headline text-lg font-bold text-on-surface flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary">history</span>
-            Hoạt động gần đây
-          </h3>
-          {reports.slice(0, 5).map((r) => {
-            const badge = STATUS_BADGE[r.statusKey] || STATUS_BADGE.submitted
-            return (
-              <div key={`act-${r.id}`} className="flex items-start gap-3 py-2 border-b border-outline-variant/40 last:border-0">
-                <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
-                  r.statusKey === 'done' ? 'bg-green-500' :
-                  r.statusKey === 'processing' ? 'bg-orange-500' :
-                  r.statusKey === 'rejected' ? 'bg-red-500' : 'bg-blue-500'
-                }`} />
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-on-surface truncate">{r.title}</p>
-                  <p className="text-xs text-on-surface-variant mt-0.5">
-                    {r.location} &middot;{' '}
-                    <span className={`font-semibold ${badge.cls.split(' ')[1]}`}>{badge.label}</span>
-                  </p>
-                </div>
-                <span className="text-xs text-on-surface-variant whitespace-nowrap">
-                  {r.createdAt
-                    ? new Date(r.createdAt).toLocaleString('vi-VN', { dateStyle: 'short', timeStyle: 'short' })
-                    : ''}
-                </span>
-              </div>
-            )
-          })}
-          {reports.length === 0 && !loading && (
-            <p className="text-sm text-on-surface-variant text-center py-4">Chưa có hoạt động nào</p>
-          )}
-        </div>
-      </div>
-
       {/* ── Dispatch Modal ───────────────────────────────────── */}
       {dispatchReport && (
         <DispatchModal
@@ -455,6 +351,10 @@ export default function ReportManager() {
           onClose={() => setDispatchReport(null)}
           onSuccess={handleDispatchSuccess}
         />
+      )}
+
+      {detailReportId && (
+        <ReportDetailSidebar reportId={detailReportId} onClose={() => setDetailReportId(null)} />
       )}
     </div>
   )

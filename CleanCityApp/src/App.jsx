@@ -11,10 +11,15 @@ import LoginPage from './pages/Auth/LoginPage'
 import RegisterPage from './pages/Auth/RegisterPage'
 import RequireAuth from './components/common/RequireAuth'
 import RequirePermission from './components/common/RequirePermission'
+import RequireStaff from './components/common/RequireStaff'
+import ErrorBoundary from './components/common/ErrorBoundary'
+import NotFoundPage from './pages/NotFoundPage'
 import { ROUTES } from './utils/constants'
 import ProfilePage from './pages/Profile/ProfilePage'
 import EditProfilePage from './pages/Profile/EditProfilePage'
 import AccountsPage from './pages/Staff/AccountsPage'
+import CommunityPage from './pages/Community'
+import ChatbotWidget from './components/common/ChatbotWidget'
 
 export default function App() {
   return (
@@ -38,7 +43,11 @@ export default function App() {
           path={ROUTES.STAFF}
           element={
             <RequireAuth>
-              <StaffLayout />
+              <RequireStaff>
+                <ErrorBoundary>
+                  <StaffLayout />
+                </ErrorBoundary>
+              </RequireStaff>
             </RequireAuth>
           }
         >
@@ -50,7 +59,10 @@ export default function App() {
           <Route path="accounts" element={<RequirePermission permission="Users.View"><AccountsPage /></RequirePermission>} />
         </Route>
         <Route path={ROUTES.MAP} element={<MapPage />} />
+        <Route path={ROUTES.COMMUNITY} element={<CommunityPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      <ChatbotWidget />
     </BrowserRouter>
   )
 }

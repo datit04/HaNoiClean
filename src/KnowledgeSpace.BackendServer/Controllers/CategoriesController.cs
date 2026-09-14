@@ -1,8 +1,12 @@
+using KnowledgeSpace.BackendServer.Constants;
+using KnowledgeSpace.BackendServer.Authorization;
 using KnowledgeSpace.BackendServer.Data;
 using KnowledgeSpace.BackendServer.Data.Entities;
 using KnowledgeSpace.BackendServer.Helpers;
+using KnowledgeSpace.ViewModels.Contents;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace KnowledgeSpace.BackendServer.Controllers
@@ -35,6 +39,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
         }
 
         [HttpPost]
+        [Permission("Categories.Create")]
         public async Task<IActionResult> Create([FromBody] Category category)
         {
             _context.Categories.Add(category);
@@ -43,6 +48,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
         }
 
         [HttpPut("{id}")]
+        [Permission("Categories.Update")]
         public async Task<IActionResult> Update(int id, [FromBody] Category request)
         {
             var category = await _context.Categories.FindAsync(id);
@@ -58,6 +64,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Permission("Categories.Delete")]
         public async Task<IActionResult> Delete(int id)
         {
             var category = await _context.Categories.FindAsync(id);
@@ -66,6 +73,34 @@ namespace KnowledgeSpace.BackendServer.Controllers
             _context.Categories.Remove(category);
             await _context.SaveChangesAsync();
             return Ok();
+        }
+
+        [HttpGet("statistics")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetStatistics(
+            DateTime? fromDate = null,
+            DateTime? toDate = null,
+            int? wardId = null,
+            int? categoryId = null,
+            int? status = null)
+        {
+            var fromDateParam = new SqlParameter("@FromDate", (object?)fromDate ?? DBNull.Value);
+            var toDateParam = new SqlParameter("@ToDate", (object?)toDate ?? DBNull.Value);
+            var wardIdParam = new SqlParameter("@WardId", (object?)wardId ?? DBNull.Value);
+            var categoryIdParam = new SqlParameter("@CategoryId", (object?)categoryId ?? DBNull.Value);
+            var statusParam = new SqlParameter("@Status", (object?)status ?? DBNull.Value);
+
+            var statistics = await _context.Database
+                .SqlQueryRaw<CategoryStatisticsVm>(
+                    "EXEC SP_Category_Statistics @FromDate, @ToDate, @WardId, @CategoryId, @Status",
+                    fromDateParam,
+                    toDateParam,
+                    wardIdParam,
+                    categoryIdParam,
+                    statusParam)
+                .ToListAsync();
+
+            return Ok(statistics);
         }
     }
 }

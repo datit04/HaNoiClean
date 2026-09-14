@@ -14,6 +14,24 @@ import { parseApiError } from '../../../utils/apiError'
 
 const HANOI_CENTER = [21.0285, 105.8542]
 
+// Ray-casting point-in-polygon (GeoJSON coords = [lng, lat])
+function pointInGeoJson(lat, lng, geoJson) {
+  if (!geoJson) return false
+  const testRing = (ring) => {
+    let inside = false
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const [xi, yi] = ring[i]
+      const [xj, yj] = ring[j]
+      if ((yi > lat) !== (yj > lat) && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi)
+        inside = !inside
+    }
+    return inside
+  }
+  if (geoJson.type === 'Polygon') return testRing(geoJson.coordinates[0])
+  if (geoJson.type === 'MultiPolygon') return geoJson.coordinates.some((p) => testRing(p[0]))
+  return false
+}
+
 function geoJsonFromBounds(bounds) {
   if (!bounds) return null
   const [[south, west], [north, east]] = bounds
@@ -25,20 +43,13 @@ function geoJsonFromBounds(bounds) {
   }
 }
 
-const pinIcon = L.divIcon({
-  html: `<span class="material-symbols-outlined" style="font-size:36px;color:#00639a;font-variation-settings:'FILL' 1;">location_on</span>`,
-  className: '',
-  iconSize: [36, 36],
-  iconAnchor: [18, 36],
-})
-
-function LocationPicker({ position, onPick }) {
+function LocationPicker({ onPick }) {
   useMapEvents({
     click(e) {
       onPick([e.latlng.lat, e.latlng.lng])
     },
   })
-  return position ? <Marker position={position} icon={pinIcon} /> : null
+  return null
 }
 
 function FlyToBounds({ bounds }) {
@@ -49,6 +60,28 @@ function FlyToBounds({ bounds }) {
   }, [bounds, map])
   return null
 }
+
+function FlyToLocation({ location }) {
+  const map = useMap()
+  useEffect(() => {
+    if (!location) return
+    map.flyTo([location.lat, location.lng], 17, { duration: 1 })
+  }, [location, map])
+  return null
+}
+
+const userDotIcon = L.divIcon({
+  html: `<div style="
+    width:16px;height:16px;
+    background:#2563eb;
+    border:3px solid #fff;
+    border-radius:50%;
+    box-shadow:0 0 0 2px #2563eb55;
+  "></div>`,
+  className: '',
+  iconSize: [16, 16],
+  iconAnchor: [8, 8],
+})
 
 function WardHighlight({ geoJson, wardKey }) {
   if (!geoJson) return null
@@ -80,6 +113,12 @@ export default function CreateReportModal({ onClose, onSuccess }) {
   const [imageFile, setImageFile] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
 
+  // GPS auto-location
+  const [gpsEnabled, setGpsEnabled] = useState(false)
+  const [gpsLoading, setGpsLoading] = useState(false)
+  const [gpsError, setGpsError] = useState('')
+  const [userGpsLocation, setUserGpsLocation] = useState(null) // { lat, lng, accuracy }
+
   // Wards — same source as BanDo map page
   const { wards, loading: wardsLoading } = useHanoiWards()
   const selectedWard = useMemo(
@@ -99,6 +138,7 @@ export default function CreateReportModal({ onClose, onSuccess }) {
   const wardGeoJson = selectedWard?.boundaryGeoJson || fetchedGeoJson || (wardBounds ? geoJsonFromBounds(wardBounds) : null)
 
   const fileInputRef = useRef(null)
+  const hasFetchedOnMount = useRef(false)
 
   // Load categories
   useEffect(() => {
@@ -107,14 +147,95 @@ export default function CreateReportModal({ onClose, onSuccess }) {
       .catch(() => {})
   }, [])
 
+  // Core GPS fetch — shared by toggle and auto-mount
+  const fetchGpsLocation = useCallback(() => {
+    if (!navigator.geolocation) {
+      setGpsError('Trình duyệt không hỗ trợ định vị')
+      return
+    }
+    setGpsLoading(true)
+    setGpsError('')
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude: lat, longitude: lng, accuracy } = pos.coords
+        setUserGpsLocation({ lat, lng, accuracy })
+        setPin([lat, lng])
+
+        // Primary: point-in-polygon against embedded HanoiMoi boundaries (correct post-merger wards)
+        const matched = wards.find((w) => w.boundaryGeoJson && pointInGeoJson(lat, lng, w.boundaryGeoJson))
+        if (matched) {
+          setWardId(String(matched.id))
+          setGpsEnabled(true)
+          setGpsLoading(false)
+          return
+        }
+
+        // Fallback: Nominatim reverse geocode name-matching
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1&accept-language=vi`,
+            { headers: { 'Accept-Language': 'vi' } },
+          )
+          const data = await res.json()
+          const addr = data.address || {}
+          const wardCandidate = addr.suburb || addr.quarter || addr.village || addr.town || ''
+          const normalize = (s) =>
+            s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/phuong|xa|thi tran/gi, '').trim()
+          const normCandidate = normalize(wardCandidate)
+          const fallback =
+            wards.find((w) => normalize(w.name) === normCandidate) ||
+            wards.find((w) => normalize(w.name).includes(normCandidate) || normCandidate.includes(normalize(w.name)))
+          if (fallback) {
+            setWardId(String(fallback.id))
+          } else {
+            setGpsError('Không tìm thấy phường/xã. Vui lòng chọn thủ công.')
+          }
+        } catch {
+          setGpsError('Không thể xác định phường/xã từ vị trí này')
+        }
+        setGpsEnabled(true)
+        setGpsLoading(false)
+      },
+      (err) => {
+        setGpsLoading(false)
+        setGpsEnabled(false)
+        if (err.code === 1) setGpsError('Bạn đã từ chối quyền truy cập vị trí')
+        else setGpsError('Không lấy được vị trí hiện tại')
+      },
+      { enableHighAccuracy: true, timeout: 10000 },
+    )
+  }, [wards])
+
+  // Auto-fetch GPS once when wards finish loading
+  useEffect(() => {
+    if (wards.length > 0 && !hasFetchedOnMount.current) {
+      hasFetchedOnMount.current = true
+      fetchGpsLocation()
+    }
+  }, [wards, fetchGpsLocation])
+
   // When ward changes, reset pin
   const handleWardChange = useCallback(
     (id) => {
       setWardId(id)
       setPin(null)
+      if (gpsEnabled) {
+        setGpsEnabled(false)
+        setUserGpsLocation(null)
+      }
     },
-    [],
+    [gpsEnabled],
   )
+
+  const handleToggleGps = useCallback(() => {
+    if (gpsEnabled) {
+      setGpsEnabled(false)
+      setGpsError('')
+      setUserGpsLocation(null)
+    } else {
+      fetchGpsLocation()
+    }
+  }, [gpsEnabled, fetchGpsLocation])
 
   // Image handling
   const handleImageSelect = (e) => {
@@ -175,7 +296,7 @@ export default function CreateReportModal({ onClose, onSuccess }) {
 
   return (
     <div className="modal-overlay bg-on-surface/20 backdrop-blur-md">
-      <div className="bg-surface-container-lowest w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl flex flex-col md:flex-row overflow-hidden border border-outline-variant/10">
+      <div className="bg-surface-container-lowest w-full max-w-4xl max-h-[90vh] overflow-y-auto custom-scrollbar rounded-2xl shadow-2xl flex flex-col md:flex-row overflow-hidden border border-outline-variant/10">
         {/* ── LEFT: Media & Map ────────────────────────── */}
         <div className="w-full md:w-2/5 bg-surface-container p-6 space-y-6">
           {/* Image upload */}
@@ -236,13 +357,26 @@ export default function CreateReportModal({ onClose, onSuccess }) {
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution="&copy; OpenStreetMap"
                   />
-                  <FlyToBounds bounds={wardBounds} />
+                  {userGpsLocation
+                    ? <FlyToLocation location={userGpsLocation} />
+                    : <FlyToBounds bounds={wardBounds} />}
                   <WardHighlight geoJson={wardGeoJson} wardKey={wardId} />
-                  <LocationPicker position={pin} onPick={setPin} />
+                  {pin && (
+                    <Marker
+                      position={pin}
+                      icon={userDotIcon}
+                      zIndexOffset={500}
+                    />
+                  )}
+                  <LocationPicker onPick={setPin} />
                 </MapContainer>
                 <div className="absolute top-2 left-2 z-[1000] bg-surface/90 backdrop-blur px-2 py-1 rounded-lg">
                   <span className="text-[10px] font-bold text-primary">
-                    {boundaryLoading ? 'Đang tải ranh giới...' : 'Nhấn vào bản đồ để ghim vị trí'}
+                    {boundaryLoading
+                      ? 'Đang tải ranh giới...'
+                      : gpsEnabled && pin
+                      ? 'Vị trí của bạn · Nhấn bản đồ để điều chỉnh'
+                      : 'Nhấn vào bản đồ để ghim vị trí'}
                   </span>
                 </div>
               </div>
@@ -291,14 +425,14 @@ export default function CreateReportModal({ onClose, onSuccess }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Ward */}
             <div className="space-y-2">
-              <label className="block text-sm font-bold text-on-surface-variant font-headline">
+              <label className="block text-sm font-bold text-on-surface-variant font-headline shrink-0">
                 Phường / Xã <span className="text-error">*</span>
               </label>
               <select
                 value={wardId}
                 onChange={(e) => handleWardChange(e.target.value)}
                 className="w-full bg-surface-container-low border-none rounded-xl text-sm py-2.5 focus:ring-1 focus:ring-primary"
-                disabled={wardsLoading}
+                disabled={wardsLoading || gpsLoading}
               >
                 <option value="">Chọn phường / xã</option>
                 {wards.map((w) => (
@@ -307,7 +441,7 @@ export default function CreateReportModal({ onClose, onSuccess }) {
                   </option>
                 ))}
               </select>
-              {wardsLoading && <p className="text-xs text-on-surface-variant">Đang tải phường/xã...</p>}
+              {!gpsError && wardsLoading && <p className="text-xs text-on-surface-variant">Đang tải phường/xã...</p>}
             </div>
 
             {/* Category */}
@@ -325,6 +459,60 @@ export default function CreateReportModal({ onClose, onSuccess }) {
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
+            </div>
+
+            {/* GPS toggle row */}
+            <div className="col-span-full">
+              <div className="flex items-center justify-between bg-surface-container-low rounded-xl px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="material-symbols-outlined text-lg"
+                    style={{
+                      color: gpsEnabled ? '#22c55e' : '#ef4444',
+                      fontVariationSettings: "'FILL' 1",
+                    }}
+                  >
+                    my_location
+                  </span>
+                  <div>
+                    <p className="text-sm font-bold text-on-surface-variant">
+                      {gpsLoading ? 'Đang định vị...' : 'Sử dụng vị trí của bạn'}
+                    </p>
+                    {gpsError ? (
+                      <p className="text-xs text-error">{gpsError}</p>
+                    ) : gpsEnabled && wardId ? (
+                      <p className="text-xs text-green-600 flex items-center gap-1">
+                        <span className="material-symbols-outlined text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                        Đã xác định phường/xã từ GPS
+                      </p>
+                    ) : (
+                      <p className="text-xs text-outline">Tự động chọn phường/xã và ghim vị trí</p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {gpsLoading && (
+                    <span className="material-symbols-outlined text-base text-outline animate-spin">sync</span>
+                  )}
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={gpsEnabled}
+                    onClick={handleToggleGps}
+                    disabled={gpsLoading || wardsLoading}
+                    title={gpsEnabled ? 'Tắt GPS' : 'Bật GPS'}
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 ${
+                      gpsEnabled ? 'bg-green-500' : 'bg-red-500'
+                    }`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition-transform duration-200 ${
+                        gpsEnabled ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
             </div>
 
             {/* Description */}
@@ -360,18 +548,7 @@ export default function CreateReportModal({ onClose, onSuccess }) {
                 ))}
               </div>
             </div>
-
-            {/* Status (locked) */}
-            <div className="col-span-full space-y-2">
-              <label className="block text-sm font-bold text-on-surface-variant font-headline">Trạng thái</label>
-              <div className="bg-surface-container-low px-4 py-2.5 rounded-xl flex items-center gap-2 opacity-60">
-                <div className="w-2 h-2 rounded-full bg-tertiary" />
-                <span className="text-sm font-medium">Chờ xử lý</span>
-                <span className="material-symbols-outlined text-xs ml-auto">lock</span>
-              </div>
-            </div>
           </div>
-
           {/* Actions */}
           <div className="flex items-center justify-end gap-4 pt-4 border-t border-outline-variant/10">
             <button

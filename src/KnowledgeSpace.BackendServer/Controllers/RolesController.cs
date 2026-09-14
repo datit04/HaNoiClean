@@ -1,8 +1,10 @@
+using KnowledgeSpace.BackendServer.Constants;
 using KnowledgeSpace.BackendServer.Authorization;
 using KnowledgeSpace.BackendServer.Data;
 using KnowledgeSpace.BackendServer.Helpers;
 using KnowledgeSpace.ViewModels;
 using KnowledgeSpace.ViewModels.Systems;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +21,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
 		}
 
 		[HttpPost]
+		[Permission("Roles.Create")]
 		[ApiValidationFilter]
 		public async Task<IActionResult> PostRole(RoleCreateRequest request)
 		{
@@ -40,6 +43,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
 		}
 
 		[HttpGet]
+		[Permission("Roles.View")]
 		public async Task<IActionResult> GetRoles()
 		{
 			var roles = _roleManager.Roles;
@@ -54,6 +58,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
 		}
 
 		[HttpGet("filter")]
+		[Permission("Roles.View")]
 		public async Task<IActionResult> GetRolesPaging(string filter, int pageIndex, int pageSize)
 		{
 			var query = _roleManager.Roles;
@@ -80,6 +85,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
 		}
 
 		[HttpGet("{id}")]
+		[Permission("Roles.View")]
 		public async Task<IActionResult> GetById(string id)
 		{
 			var role = await _roleManager.FindByIdAsync(id);
@@ -95,6 +101,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
 		}
 
 		[HttpPut("{id}")]
+		[Permission("Roles.Update")]
 		[ApiValidationFilter]
 		public async Task<IActionResult> PutRole(string id, [FromBody] RoleCreateRequest roleVm)
 		{
@@ -118,6 +125,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
 		}
 
 		[HttpDelete("{id}")]
+		[Permission("Roles.Delete")]
 		public async Task<IActionResult> DeleteRole(string id)
 		{
 			var role = await _roleManager.FindByIdAsync(id);

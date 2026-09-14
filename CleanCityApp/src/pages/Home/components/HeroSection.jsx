@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 export default function HeroSection() {
   return (
-    <header className="relative min-h-[921px] flex items-center overflow-hidden bg-surface-container-low">
+    <header className="relative min-h-[600px] lg:min-h-[921px] flex items-center overflow-hidden bg-surface-container-low">
       <div className="absolute inset-0 z-0">
         <img
           alt="Hanoi Skyline"
@@ -14,7 +14,7 @@ export default function HeroSection() {
 
       <div className="container mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
         <div className="lg:col-span-7">
-          <h1 className="font-headline font-extrabold text-5xl lg:text-7xl text-primary leading-tight mb-6 tracking-tighter">
+          <h1 className="font-headline font-extrabold text-4xl sm:text-5xl lg:text-7xl text-primary leading-tight mb-6 tracking-tighter">
             Kiến tạo Thủ đô <br />
             <span className="text-secondary italic">Xanh &amp; Bền vững</span>
           </h1>

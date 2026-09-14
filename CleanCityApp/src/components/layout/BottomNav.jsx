@@ -1,9 +1,10 @@
 import { Link, useLocation } from 'react-router-dom'
+import { ROUTES } from '../../utils/constants'
 
 const navLinks = [
-  { path: '/ban-do', label: 'Map', icon: 'location_on' },
-  { path: '/nguoi-dan', label: 'Report', icon: 'add_circle' },
-  { path: '/can-bo', label: 'Profile', icon: 'person' },
+  { path: ROUTES.MAP, label: 'Map', icon: 'location_on' },
+  { path: ROUTES.CITIZEN, label: 'Report', icon: 'add_circle' },
+  { path: ROUTES.STAFF, label: 'Profile', icon: 'person' },
 ]
 
 export default function BottomNav() {

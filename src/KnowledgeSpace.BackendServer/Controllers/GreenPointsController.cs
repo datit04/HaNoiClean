@@ -1,3 +1,4 @@
+using KnowledgeSpace.BackendServer.Authorization;
 using KnowledgeSpace.BackendServer.Data;
 using KnowledgeSpace.BackendServer.Data.Entities;
 using KnowledgeSpace.BackendServer.Extensions;
@@ -52,6 +53,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
         }
 
         [HttpPost]
+        [Permission("GreenPoints.Add")]
         public async Task<IActionResult> AddPoints([FromBody] UserGreenPoint greenPoint)
         {
             _context.UserGreenPoints.Add(greenPoint);

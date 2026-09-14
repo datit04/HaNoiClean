@@ -1,6 +1,7 @@
 import { Link, NavLink } from 'react-router-dom'
 import { ROUTES } from '../../utils/constants'
 import { useAuth } from '../../contexts/AuthContext'
+import { swalWarning } from '../../utils/swal'
 
 const topLinks = [
   { path: ROUTES.STAFF, label: 'Dashboard', icon: 'dashboard' },
@@ -18,33 +19,55 @@ const bottomLinks = [
 export default function SideNav() {
   const { hasPermission } = useAuth()
 
-  const visibleLinks = topLinks.filter(({ permission }) => hasPermission(permission))
-
   return (
-    <aside className="fixed left-0 top-0 h-full flex flex-col p-4 gap-2 h-screen w-64 border-r-0 bg-[#eff6e7] dark:bg-emerald-900/10 z-50 hidden md:flex">
-      <div className="mb-8 px-4">
+    <aside className="fixed left-0 top-0 h-screen flex flex-col gap-2 z-50 hidden md:flex
+      md:w-16 lg:w-64
+      md:p-2 lg:p-4
+      bg-[#eff6e7] dark:bg-emerald-900/10
+      transition-[width,padding] duration-300 ease-in-out">
+
+      {/* Brand – visible only on lg+ */}
+      <div className="mb-6 px-2 hidden lg:block">
         <h1 className="text-xl font-bold text-[#206223] dark:text-[#acf4a4] font-headline">
-          CleanCity Admin
+          Ha Noi Xanh
         </h1>
-        <p className="text-xs text-[#6b4f45] font-medium">Quản trị vận hành đô thị</p>
+      </div>
+
+      {/* Logo icon – visible only on md (icon-only mode) */}
+      <div className="mb-6 flex items-center justify-center lg:hidden">
+        <span className="material-symbols-outlined text-[#206223] text-2xl" aria-hidden="true">eco</span>
       </div>
 
       <nav className="flex-1 flex flex-col gap-1">
-        {visibleLinks.map(({ path, label, icon }) => (
-          <NavLink
-            key={label}
-            to={path}
-            end={path === ROUTES.STAFF}
-            className={({ isActive }) =>
-              isActive
-                ? 'flex items-center gap-3 px-4 py-3 bg-[#206223] text-white rounded-xl shadow-lg shadow-[#206223]/10 transition-colors duration-200 ease-out'
-                : 'flex items-center gap-3 px-4 py-3 text-[#6b4f45] hover:bg-[#dee5d6] transition-colors duration-200 ease-out rounded-xl'
+        {topLinks.map(({ path, label, icon, permission }) => {
+          const allowed = !permission || hasPermission(permission)
+          const handleClick = (e) => {
+            if (!allowed) {
+              e.preventDefault()
+              swalWarning('Không có quyền truy cập', 'Bạn không có quyền sử dụng chức năng này.')
             }
-          >
-            <span className="material-symbols-outlined" aria-hidden="true">{icon}</span>
-            <span className="font-medium text-sm">{label}</span>
-          </NavLink>
-        ))}
+          }
+          return (
+            <NavLink
+              key={label}
+              to={path}
+              end={path === ROUTES.STAFF}
+              title={label}
+              onClick={handleClick}
+              className={({ isActive }) =>
+                isActive
+                  ? 'flex items-center justify-center lg:justify-start gap-3 md:px-3 lg:px-4 py-3 bg-[#206223] text-white rounded-xl shadow-lg shadow-[#206223]/10 transition-colors duration-200 ease-out'
+                  : `flex items-center justify-center lg:justify-start gap-3 md:px-3 lg:px-4 py-3 transition-colors duration-200 ease-out rounded-xl ${allowed ? 'text-[#6b4f45] hover:bg-[#dee5d6]' : 'text-[#6b4f45]/50 hover:bg-[#dee5d6]/50 cursor-not-allowed'}`
+              }
+            >
+              <span className="material-symbols-outlined flex-shrink-0" aria-hidden="true">{icon}</span>
+              <span className="font-medium text-sm hidden lg:inline">{label}</span>
+              {!allowed && (
+                <span className="material-symbols-outlined text-xs hidden lg:inline ml-auto opacity-50" title="Không có quyền">lock</span>
+              )}
+            </NavLink>
+          )
+        })}
       </nav>
 
       <div className="mt-auto flex flex-col gap-1 pt-4 border-t border-[#bfcaba]/15">
@@ -52,10 +75,11 @@ export default function SideNav() {
           <Link
             key={label}
             to={path}
-            className="flex items-center gap-3 px-4 py-2 text-[#6b4f45] hover:bg-[#dee5d6] rounded-xl transition-colors"
+            title={label}
+            className="flex items-center justify-center lg:justify-start gap-3 md:px-3 lg:px-4 py-2 text-[#6b4f45] hover:bg-[#dee5d6] rounded-xl transition-colors"
           >
-            <span className="material-symbols-outlined" aria-hidden="true">{icon}</span>
-            <span className="font-medium text-sm">{label}</span>
+            <span className="material-symbols-outlined flex-shrink-0" aria-hidden="true">{icon}</span>
+            <span className="font-medium text-sm hidden lg:inline">{label}</span>
           </Link>
         ))}
       </div>

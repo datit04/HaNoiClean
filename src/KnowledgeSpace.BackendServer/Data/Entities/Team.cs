@@ -12,19 +12,21 @@ namespace KnowledgeSpace.BackendServer.Data.Entities
 
         [MaxLength(100)]
         [Required]
-        public string Name { get; set; }
+        public string? Name { get; set; }
+
+        public int? Members { get; set; }
 
         public int? WardId { get; set; }
 
         [ForeignKey("WardId")]
         public Ward? Ward { get; set; }
 
-        [MaxLength(50)]
-        [Column(TypeName = "varchar(50)")]
-        public string? LeaderId { get; set; }
+        public int? CategoryId { get; set; }
 
-        [ForeignKey("LeaderId")]
-        public User? Leader { get; set; }
+        [ForeignKey("CategoryId")]
+        public Category? Category { get; set; }
+
+        public string? Description { get; set; }
 
         public bool IsActive { get; set; }
 

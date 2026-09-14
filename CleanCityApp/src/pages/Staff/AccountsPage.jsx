@@ -5,6 +5,7 @@ import AssignRoleModal from './components/AssignRoleModal';
 import SelectionBar from '../../components/common/SelectionBar';
 import Pagination from '../../components/common/Pagination';
 import { swalSuccess, swalError, swalConfirm, swalConfirmDelete, swalLoading, swalClose } from '../../utils/swal';
+import { parseApiError } from '../../utils/apiError';
 
 const STATUS_OPTIONS = ["Tất cả", "Hoạt động", "Bị khóa"];
 
@@ -20,6 +21,7 @@ export default function AccountsPage() {
 	const pageSize = 10;
 	const [selectedIds, setSelectedIds] = useState([]);
 	const [assignUser, setAssignUser] = useState(null);
+	const [actionLoadingId, setActionLoadingId] = useState(null);
 
 	useEffect(() => {
 		setLoading(true);
@@ -55,13 +57,18 @@ export default function AccountsPage() {
 
 	// Actions
 	const handleDelete = async (id) => {
+		if (!(await swalConfirm('Bạn có chắc muốn xoá tài khoản này?', 'Hành động này không thể hoàn tác.'))) return;
+		setActionLoadingId(id);
 		try {
 			await userApi.delete(id);
 			setAccounts(prev => prev.filter(acc => acc.id !== id));
 			setSelectedIds(prev => prev.filter(x => x !== id));
 			swalSuccess('Đã xoá tài khoản!');
 		} catch (err) {
-			if (err.response?.status !== 403) swalError('Xoá tài khoản thất bại.');
+			const msg = parseApiError(err, 'Xoá tài khoản thất bại.');
+			if (msg) swalError(msg);
+		} finally {
+			setActionLoadingId(null);
 		}
 	};
 
@@ -72,6 +79,7 @@ export default function AccountsPage() {
 			isLocking ? 'Tài khoản sẽ không thể đăng nhập.' : 'Tài khoản sẽ được phép đăng nhập lại.'
 		);
 		if (!confirmed) return;
+		setActionLoadingId(acc.id);
 		try {
 			await userApi.toggleLock(acc.id);
 			setAccounts(prev =>
@@ -79,7 +87,10 @@ export default function AccountsPage() {
 			);
 			swalSuccess(isLocking ? 'Đã khóa tài khoản!' : 'Đã mở khóa tài khoản!');
 		} catch (err) {
-			if (err.response?.status !== 403) swalError('Thao tác thất bại.');
+			const msg = parseApiError(err, 'Thao tác thất bại.');
+			if (msg) swalError(msg);
+		} finally {
+			setActionLoadingId(null);
 		}
 	};
 
@@ -95,20 +106,19 @@ export default function AccountsPage() {
 		if (!(await swalConfirm(`Xoá ${selectedIds.length} tài khoản đã chọn?`, 'Hành động này không thể hoàn tác.'))) return;
 		swalLoading('Đang xoá...');
 		let ok = 0, fail = 0;
+		const successIds = [];
 		for (const id of selectedIds) {
-			try { await userApi.delete(id); ok++; } catch { fail++; }
+			try { await userApi.delete(id); successIds.push(id); ok++; } catch { fail++; }
 		}
 		swalClose();
-		setAccounts(prev => prev.filter(a => !selectedIds.includes(a.id) || fail));
+		setAccounts(prev => prev.filter(a => !successIds.includes(a.id)));
 		setSelectedIds([]);
 		if (fail) swalError(`Xoá thất bại ${fail}/${ok + fail} tài khoản`);
 		else swalSuccess(`Đã xoá ${ok} tài khoản!`);
-		// Reload
-		userApi.getAll().then(res => setAccounts(res.data)).catch(() => {});
 	};
 
 	return (
-		<div className="px-8 py-6 space-y-8 max-w-[1600px] mx-auto">
+		<div className="px-4 sm:px-8 py-4 sm:py-6 space-y-8 max-w-[1600px] mx-auto">
 			{/* Page Header & Summary Section */}
 			<section className="space-y-6">
 				<div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -116,10 +126,6 @@ export default function AccountsPage() {
 						<h2 className="text-4xl font-extrabold text-on-surface leading-tight tracking-tight">Quản lý Tài khoản</h2>
 						<p className="text-on-surface-variant mt-1 font-body">Kiểm soát truy cập và phân quyền người dùng trong hệ thống CleanCity.</p>
 					</div>
-					<button className="bg-primary-fixed text-on-primary-fixed-variant px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:shadow-lg transition-all active:scale-95">
-						<span className="material-symbols-outlined">person_add</span>
-						Thêm Người dùng
-					</button>
 				</div>
 				{/* Bento Grid Summary Cards */}
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -207,43 +213,43 @@ export default function AccountsPage() {
 			</div>
 			<SelectionBar count={selectedIds.length} onClear={() => setSelectedIds([])}>
 				<button onClick={handleBulkDelete} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-error text-on-error text-sm font-bold hover:bg-error/90 transition-colors">
-					<span className="material-symbols-outlined text-lg">delete</span>
+					<span className="material-symbols-outlined text-xl">delete</span>
 					Xoá ({selectedIds.length})
 				</button>
 			</SelectionBar>
-			<div className="overflow-x-auto rounded-2xl border border-outline-variant/10 shadow-sm">
-				{error && <div className="text-error font-bold p-4">{error}</div>}
+			<div className="bg-surface rounded-3xl border border-outline-variant overflow-hidden overflow-x-auto">
+				{error && <div className="text-error font-bold px-5 py-3 text-sm">{error}</div>}
 				{loading ? (
-					<div className="p-4">Đang tải...</div>
+					<div className="px-5 py-12 text-center text-sm text-on-surface-variant">Đang tải...</div>
 				) : (
-					<table className="w-full text-left border-collapse bg-surface-container-lowest">
-						<thead className="bg-surface-container-high/50 border-b border-outline-variant/20">
-							<tr>
-								<th className="px-4 py-4 w-10">
+					<table className="w-full text-sm">
+						<thead>
+							<tr className="border-b border-outline-variant bg-surface-container">
+								<th className="px-3 py-4 w-10">
 									<input type="checkbox" className="accent-primary w-4 h-4 cursor-pointer" checked={paged.length > 0 && selectedIds.length === paged.length} onChange={toggleSelectAll} />
 								</th>
-									<th className="px-6 py-4 font-headline text-xs font-black uppercase tracking-widest text-tertiary">ID</th>
-									<th className="px-6 py-4 font-headline text-xs font-black uppercase tracking-widest text-tertiary">Họ và Tên</th>
-									<th className="px-6 py-4 font-headline text-xs font-black uppercase tracking-widest text-tertiary">Email</th>
-									<th className="px-6 py-4 font-headline text-xs font-black uppercase tracking-widest text-tertiary">Số điện thoại</th>
-									<th className="px-6 py-4 font-headline text-xs font-black uppercase tracking-widest text-tertiary">Phường</th>
-									<th className="px-6 py-4 font-headline text-xs font-black uppercase tracking-widest text-tertiary">Trạng thái</th>
-									<th className="px-6 py-4 font-headline text-xs font-black uppercase tracking-widest text-tertiary text-right">Thao tác</th>
+							<th className="px-5 py-4 text-left font-semibold text-on-surface-variant hidden lg:table-cell">ID</th>
+							<th className="px-5 py-4 text-left font-semibold text-on-surface-variant">Họ và Tên</th>
+							<th className="px-5 py-4 text-left font-semibold text-on-surface-variant hidden md:table-cell">Email</th>
+							<th className="px-5 py-4 text-left font-semibold text-on-surface-variant hidden md:table-cell">Số điện thoại</th>
+							<th className="px-5 py-4 text-left font-semibold text-on-surface-variant hidden lg:table-cell">Phường</th>
+									<th className="px-5 py-4 text-left font-semibold text-on-surface-variant">Trạng thái</th>
+									<th className="px-5 py-4 text-right font-semibold text-on-surface-variant">Thao tác</th>
 								</tr>
 							</thead>
-							<tbody className="divide-y divide-outline-variant/10">
+							<tbody>
 								{paged.map(acc => (
-								<tr key={acc.id} className={`hover:bg-surface-container-low transition-colors group ${selectedIds.includes(acc.id) ? 'bg-primary-fixed/30' : ''}`}>
-									<td className="px-4 py-5 w-10">
+								<tr key={acc.id} className={`border-b border-outline-variant/50 hover:bg-surface-container/50 transition-colors ${selectedIds.includes(acc.id) ? 'bg-primary-fixed/30' : ''}`}>
+									<td className="px-3 py-4 w-10">
 										<input type="checkbox" className="accent-primary w-4 h-4 cursor-pointer" checked={selectedIds.includes(acc.id)} onChange={() => toggleSelect(acc.id)} />
 									</td>
-										<td className="px-6 py-5 font-headline font-bold text-sm text-primary">{acc.id?.slice(0, 6) || acc.id}</td>
-										<td className="px-6 py-5">
+										<td className="px-5 py-4 font-semibold text-sm text-primary hidden lg:table-cell">{acc.id?.slice(0, 6) || acc.id}</td>
+								<td className="px-5 py-4">
 											<div className="flex items-center gap-3">
 																								{(() => {
 																									let avatar = acc.avatar || acc.avatarUrl || "";
 																									if (avatar.startsWith("/user-attachments/")) {
-																										avatar = `https://localhost:5002${avatar}`;
+																										avatar = `${import.meta.env.VITE_API_BASE_URL || ''}${avatar}`;
 																									}
 																									// Nếu là http(s) thì giữ nguyên, nếu rỗng thì default
 																									return avatar ? (
@@ -262,34 +268,44 @@ export default function AccountsPage() {
 												<span className="font-bold text-on-surface text-sm">{acc.fullName}</span>
 											</div>
 										</td>
-										<td className="px-6 py-5 text-sm font-medium text-on-surface-variant">{acc.email}</td>
-										<td className="px-6 py-5 text-sm font-medium text-on-surface-variant">{acc.phoneNumber}</td>
-										<td className="px-6 py-5 text-sm font-medium text-on-surface-variant">{acc.wardName || "-"}</td>
-										<td className="px-6 py-5">
+						<td className="px-5 py-4 text-on-surface-variant hidden md:table-cell">{acc.email}</td>
+						<td className="px-5 py-4 text-on-surface-variant hidden md:table-cell">{acc.phoneNumber}</td>
+						<td className="px-5 py-4 text-on-surface-variant hidden lg:table-cell">{acc.wardName || "-"}</td>
+								<td className="px-5 py-4">
 											<span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${acc.status === 'Active' ? 'bg-primary/10 text-primary' : 'bg-error-container/50 text-error'}`}>
 												{acc.status === 'Active' ? 'Hoạt động' : 'Bị khóa'}
 											</span>
 										</td>
-										<td className="px-6 py-5 text-right">
-											<div className="flex justify-end gap-2 opacity-40 group-hover:opacity-100 transition-opacity">
-												<button className="p-1.5 hover:text-primary transition-colors" title="Gán vai trò" onClick={() => setAssignUser(acc)}>
-													<span className="material-symbols-outlined text-lg">admin_panel_settings</span>
+										<td className="px-5 py-4 text-right">
+											<div className="flex justify-end gap-1">
+												<button aria-label="Gán vai trò" className="p-2 rounded-xl hover:bg-primary/10 text-primary transition-colors" title="Gán vai trò" onClick={() => setAssignUser(acc)}>
+													<span className="material-symbols-outlined text-xl">admin_panel_settings</span>
 												</button>
-												<button className="p-1.5 hover:text-primary transition-colors" title="Sửa"><span className="material-symbols-outlined text-lg">edit</span></button>
-												<button className={`p-1.5 ${acc.status === 'Active' ? 'hover:text-error' : 'hover:text-primary'} transition-colors`} title="Khoá/Mở" onClick={() => handleToggleLock(acc)}>
-													<span className="material-symbols-outlined text-lg">{acc.status === 'Active' ? 'lock' : 'lock_open'}</span>
+												<button aria-label="Sửa tài khoản" className="p-2 rounded-xl hover:bg-primary/10 text-primary transition-colors" title="Sửa">
+													<span className="material-symbols-outlined text-xl">edit</span>
 												</button>
-																			<button
-																				className="p-1.5 hover:text-error transition-colors"
-																				title="Xóa tài khoản"
-																				onClick={async () => {
-																					if (await swalConfirm('Bạn có chắc muốn xoá tài khoản này?')) {
-																						handleDelete(acc.id);
-																					}
-																				}}
-																			>
-																				<span className="material-symbols-outlined text-lg">delete</span>
-																			</button>
+												<button
+													aria-label={acc.status === 'Active' ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}
+													disabled={actionLoadingId === acc.id}
+													className={`p-2 rounded-xl transition-colors disabled:opacity-50 ${acc.status === 'Active' ? 'hover:bg-error/10 text-error' : 'hover:bg-primary/10 text-primary'}`}
+													title={acc.status === 'Active' ? 'Khóa' : 'Mở khóa'}
+													onClick={() => handleToggleLock(acc)}
+												>
+													{actionLoadingId === acc.id
+														? <span className="material-symbols-outlined text-xl animate-spin">refresh</span>
+														: <span className="material-symbols-outlined text-xl">{acc.status === 'Active' ? 'lock' : 'lock_open'}</span>}
+												</button>
+												<button
+													aria-label="Xóa tài khoản"
+													disabled={actionLoadingId === acc.id}
+													className="p-2 rounded-xl hover:bg-error/10 text-error transition-colors disabled:opacity-50"
+													title="Xóa tài khoản"
+													onClick={() => handleDelete(acc.id)}
+												>
+													{actionLoadingId === acc.id
+														? <span className="material-symbols-outlined text-xl animate-spin">refresh</span>
+														: <span className="material-symbols-outlined text-xl">delete</span>}
+												</button>
 											</div>
 										</td>
 									</tr>

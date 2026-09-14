@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useDebounce } from '../../../hooks/useDebounce'
 import {
   getTeams,
   createTeam,
@@ -70,15 +71,17 @@ export default function TeamManager() {
     return map
   }, [wards])
 
+  const debouncedSearch = useDebounce(search)
+
   const filteredTeams = useMemo(() => {
-    const keyword = search.trim().toLowerCase()
+    const keyword = debouncedSearch.trim().toLowerCase()
     if (!keyword) return teams
     return teams.filter((t) =>
       [t.name, wardMap[t.wardId]]
         .filter(Boolean)
         .some((v) => String(v).toLowerCase().includes(keyword))
     )
-  }, [teams, search, wardMap])
+  }, [teams, debouncedSearch, wardMap])
 
   const totalPages = Math.max(1, Math.ceil(filteredTeams.length / PAGE_SIZE))
   const currentPage = Math.min(page, totalPages)
@@ -271,9 +274,9 @@ export default function TeamManager() {
       </SelectionBar>
 
       {/* Data Table */}
-      <div className="bg-surface-container-highest rounded-3xl overflow-hidden">
+      <div className="bg-surface rounded-3xl border border-outline-variant overflow-hidden">
         {/* Table Header */}
-        <div className="px-8 py-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-surface-container-high">
+        <div className="px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-surface-container border-b border-outline-variant">
           <h3 className="font-headline font-bold text-xl text-on-surface">Danh sách đội ngũ</h3>
           <div className="flex gap-3 items-center">
             <div className="flex items-center gap-2 bg-surface-container-lowest rounded-lg px-3 py-2">
@@ -295,33 +298,21 @@ export default function TeamManager() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-sm">
             <thead>
-              <tr className="bg-surface-container-high/50">
-                <th className="px-4 py-4 w-10">
+              <tr className="border-b border-outline-variant bg-surface-container">
+                <th className="px-3 py-4 w-10">
                   <input type="checkbox" className="accent-primary w-4 h-4 cursor-pointer" checked={paginatedTeams.length > 0 && selectedIds.length === paginatedTeams.length} onChange={toggleSelectAll} />
                 </th>
-                <th className="px-8 py-4 font-headline text-on-surface-variant font-semibold text-sm uppercase tracking-wider">
-                  STT
-                </th>
-                <th className="px-8 py-4 font-headline text-on-surface-variant font-semibold text-sm uppercase tracking-wider">
-                  Tên Đội
-                </th>
-                <th className="px-8 py-4 font-headline text-on-surface-variant font-semibold text-sm uppercase tracking-wider">
-                  Phường/Xã
-                </th>
-                <th className="px-8 py-4 font-headline text-on-surface-variant font-semibold text-sm uppercase tracking-wider text-center">
-                  Số thành viên
-                </th>
-                <th className="px-8 py-4 font-headline text-on-surface-variant font-semibold text-sm uppercase tracking-wider">
-                  Trạng thái
-                </th>
-                <th className="px-8 py-4 font-headline text-on-surface-variant font-semibold text-sm uppercase tracking-wider text-right">
-                  Thao tác
-                </th>
+                <th className="px-5 py-4 text-left font-semibold text-on-surface-variant hidden lg:table-cell">STT</th>
+                <th className="px-5 py-4 text-left font-semibold text-on-surface-variant">Tên Đội</th>
+                <th className="px-5 py-4 text-left font-semibold text-on-surface-variant hidden md:table-cell">Phường/Xã</th>
+                <th className="px-5 py-4 text-center font-semibold text-on-surface-variant hidden md:table-cell">Số thành viên</th>
+                <th className="px-5 py-4 text-left font-semibold text-on-surface-variant">Trạng thái</th>
+                <th className="px-5 py-4 text-right font-semibold text-on-surface-variant">Thao tác</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-outline-variant/10">
+            <tbody>
               {loading ? (
                 <tr>
                   <td colSpan={8} className="px-8 py-12 text-center text-on-surface-variant">
@@ -337,21 +328,21 @@ export default function TeamManager() {
               ) : (
                 paginatedTeams.map((team, idx) => {
                   return (
-                    <tr key={team.id} className={`hover:bg-surface-container-low/50 transition-colors ${selectedIds.includes(team.id) ? 'bg-primary-fixed/30' : ''}`}>
-                      <td className="px-4 py-6 w-10">
+                    <tr key={team.id} className={`border-b border-outline-variant/50 hover:bg-surface-container/50 transition-colors ${selectedIds.includes(team.id) ? 'bg-primary-fixed/30' : ''}`}>
+                      <td className="px-3 py-4 w-10">
                         <input type="checkbox" className="accent-primary w-4 h-4 cursor-pointer" checked={selectedIds.includes(team.id)} onChange={() => toggleSelect(team.id)} />
                       </td>
-                      <td className="px-8 py-6 font-mono text-xs text-outline">
+                      <td className="px-5 py-4 font-mono text-xs text-outline hidden lg:table-cell">
                         {String((currentPage - 1) * PAGE_SIZE + idx + 1)}
                       </td>
-                      <td className="px-8 py-6 font-bold text-on-surface">{team.name}</td>
-                      <td className="px-8 py-6">
+                      <td className="px-5 py-4 font-semibold text-on-surface">{team.name}</td>
+                      <td className="px-5 py-4 hidden md:table-cell">
                         {wardMap[team.wardId] || '-'}
                       </td>
-                      <td className="px-8 py-6 text-center font-bold">
+                      <td className="px-5 py-4 text-center font-semibold hidden md:table-cell">
                         {String(team.members ?? 0).padStart(2, '0')}
                       </td>
-                      <td className="px-8 py-6">
+                      <td className="px-5 py-4">
                         {team.isActive ? (
                         <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-primary-fixed text-on-primary-fixed">
                           <span className="w-1.5 h-1.5 rounded-full bg-primary mr-2" />
@@ -364,20 +355,24 @@ export default function TeamManager() {
                         </span>
                       )}
                       </td>
-                      <td className="px-8 py-6 text-right">
-                        <div className="flex justify-end gap-2">
+                      <td className="px-5 py-4 text-right">
+                        <div className="flex justify-end gap-1">
                           <button
+                            aria-label="Chỉnh sửa đội"
                             onClick={() => openEdit(team)}
-                            className="material-symbols-outlined p-2 text-outline hover:text-primary hover:bg-primary-fixed/20 rounded-lg transition-all"
+                            className="p-2 rounded-xl hover:bg-primary/10 text-primary transition-colors"
+                            title="Chỉnh sửa"
                           >
-                            edit
+                            <span className="material-symbols-outlined text-xl">edit</span>
                           </button>
                           <button
+                            aria-label="Xoá đội"
                             onClick={() => handleDelete(team)}
                             disabled={submitting}
-                            className="material-symbols-outlined p-2 text-outline hover:text-error hover:bg-error-container/20 rounded-lg transition-all disabled:opacity-50"
+                            className="p-2 rounded-xl hover:bg-error/10 text-error transition-colors disabled:opacity-50"
+                            title="Xoá"
                           >
-                            delete
+                            <span className="material-symbols-outlined text-xl">delete</span>
                           </button>
                         </div>
                       </td>
@@ -418,7 +413,7 @@ export default function TeamManager() {
             </div>
 
             {/* Modal Content */}
-            <div className="flex-1 overflow-y-auto p-8 pt-4 space-y-8">
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-8 pt-4 space-y-8">
               {/* Basic Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="col-span-2 flex flex-col gap-2">

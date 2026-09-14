@@ -1,6 +1,9 @@
+using KnowledgeSpace.BackendServer.Constants;
+using KnowledgeSpace.BackendServer.Authorization;
 using KnowledgeSpace.BackendServer.Data;
 using KnowledgeSpace.BackendServer.Data.Entities;
 using KnowledgeSpace.BackendServer.Helpers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -41,6 +44,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
         }
 
         [HttpPost]
+        [Permission("TrashBins.Create")]
         public async Task<IActionResult> Create([FromBody] TrashBin bin)
         {
             _context.TrashBins.Add(bin);
@@ -49,6 +53,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
         }
 
         [HttpPut("{id}")]
+        [Permission("TrashBins.Update")]
         public async Task<IActionResult> Update(int id, [FromBody] TrashBin request)
         {
             var bin = await _context.TrashBins.FindAsync(id);
@@ -79,6 +84,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Permission("TrashBins.Delete")]
         public async Task<IActionResult> Delete(int id)
         {
             var bin = await _context.TrashBins.FindAsync(id);

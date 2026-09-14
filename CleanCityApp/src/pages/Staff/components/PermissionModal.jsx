@@ -115,7 +115,7 @@ export default function PermissionModal({ role, onClose, onUpdated }) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto px-8 py-6 space-y-4">
+        <div className="flex-1 overflow-y-auto custom-scrollbar px-8 py-6 space-y-4">
           {loading ? (
             <div className="text-center py-12 text-on-surface-variant">
               Đang tải quyền hạn...

@@ -49,8 +49,6 @@ export default function LoginPage() {
     <AuthShell
       title="Đăng nhập"
       subtitle="Chào mừng bạn trở lại với hệ thống Hanoi CleanCity"
-      heroTitle="Bảo tồn vẻ đẹp Hà Nội, bắt đầu từ hành động nhỏ"
-      heroDescription="Hệ thống tiếp nhận và điều phối báo cáo môi trường cho cộng đồng dân cư và cán bộ quản lý."
       footerText="Chưa có tài khoản?"
       footerActionLabel="Đăng ký ngay"
       footerActionTo={ROUTES.REGISTER}

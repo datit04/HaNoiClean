@@ -67,9 +67,14 @@ namespace KnowledgeSpace.BackendServer
 				options.SignIn.RequireConfirmedPhoneNumber = false;
 				options.SignIn.RequireConfirmedAccount = false;
 				options.SignIn.RequireConfirmedEmail = false;
-				options.Password.RequiredLength = 8;
-				options.Password.RequireDigit = true;
-				options.Password.RequireUppercase = true;
+
+				// Password requirements - Đơn giản hóa cho development
+				options.Password.RequiredLength = 6;            // Tối thiểu 6 ký tự
+				options.Password.RequireDigit = false;          // Không bắt buộc số
+				options.Password.RequireUppercase = false;      // Không bắt buộc chữ HOA
+				options.Password.RequireLowercase = false;      // Không bắt buộc chữ thường
+				options.Password.RequireNonAlphanumeric = false; // Không bắt buộc ký tự đặc biệt
+
 				options.User.RequireUniqueEmail = true;
 			});
 
@@ -110,7 +115,8 @@ namespace KnowledgeSpace.BackendServer
 			});
 			services.AddTransient<DbInitializer>();
 			services.AddTransient<IEmailSender, EmailSenderService>();
-			services.AddTransient<IStorageService, FileStorageService>();
+			services.Configure<MinioSettings>(Configuration.GetSection("MinIO"));
+			services.AddTransient<IStorageService, MinioStorageService>();
 
 			services.AddSwaggerGen(c =>
 			{

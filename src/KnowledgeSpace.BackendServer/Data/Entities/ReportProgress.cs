@@ -37,6 +37,9 @@ namespace KnowledgeSpace.BackendServer.Data.Entities
         [MaxLength(1000)]
         public string? Note { get; set; }
 
+        [MaxLength(1000)]
+        public string? Description { get; set; }
+
         [MaxLength(500)]
         public string? ImageAfterUrl { get; set; }
 

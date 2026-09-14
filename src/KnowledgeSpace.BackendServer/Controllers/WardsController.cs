@@ -1,3 +1,5 @@
+using KnowledgeSpace.BackendServer.Constants;
+using KnowledgeSpace.BackendServer.Authorization;
 using KnowledgeSpace.BackendServer.Data;
 using KnowledgeSpace.BackendServer.Data.Entities;
 using KnowledgeSpace.BackendServer.Helpers;
@@ -35,6 +37,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
         }
 
         [HttpPost]
+        [Permission("Wards.Create")]
         public async Task<IActionResult> Create([FromBody] Ward ward)
         {
             _context.Wards.Add(ward);
@@ -43,6 +46,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
         }
 
         [HttpPut("{id}")]
+        [Permission("Wards.Update")]
         public async Task<IActionResult> Update(int id, [FromBody] Ward request)
         {
             var ward = await _context.Wards.FindAsync(id);
@@ -60,6 +64,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Permission("Wards.Delete")]
         public async Task<IActionResult> Delete(int id)
         {
             var ward = await _context.Wards.FindAsync(id);

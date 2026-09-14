@@ -9,8 +9,8 @@ export default function MapLeaderboard() {
   const [collapsed, setCollapsed] = useState(false)
 
   useEffect(() => {
-    getGreenPointLeaderboard(5, { skipAuthRedirect: true })
-      .then((res) => setLeaderboard(res.data || []))
+    getGreenPointLeaderboard(3, { skipAuthRedirect: true })
+      .then((res) => setLeaderboard((res.data || []).slice(0, 3)))
       .catch(() => {})
     if (isAuthenticated) {
       getMyGreenPoints({ skipAuthRedirect: true })

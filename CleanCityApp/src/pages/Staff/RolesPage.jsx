@@ -56,9 +56,6 @@ export default function RolesPage() {
       <div className="flex flex-col md:flex-row justify-between items-end gap-6">
         <div className="space-y-2 max-w-2xl">
           <h1 className="text-4xl font-extrabold text-on-surface tracking-tight leading-tight">Quản lý Vai trò</h1>
-          <p className="text-on-surface-variant text-lg font-medium leading-relaxed">
-            Thiết lập và phân quyền truy cập cho các tài khoản trong hệ thống quản lý đô thị. Đảm bảo đúng người, đúng việc.
-          </p>
         </div>
         <button
           className="btn-primary flex items-center gap-2 px-6 py-4"

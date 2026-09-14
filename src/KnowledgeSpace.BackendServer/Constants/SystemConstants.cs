@@ -2,15 +2,10 @@
 {
     public class SystemConstants
     {
-        public class Claims
-        {
-            public const string Permissions = "permissions";
-        }
-
         public class Roles
         {
             public const string Admin = "Admin";
-            public const string Citizen = "Người dùng";
+            public const string Citizen = "User";
         }
     }
 }

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E \"\\\\.\\(js|jsx\\)$\")",
+      "Read(//e/Learn/ASPNET_CORE/src/KnowledgeSpace.BackendServer/Controllers/**)",
+      "Read(//e/Learn/ASPNET_CORE/src/KnowledgeSpace.BackendServer/Data/**)",
+      "Read(//e/Learn/ASPNET_CORE/**)",
+      "Bash(xargs grep *)",
+      "Bash(Get-ChildItem -Path \"e:\\\\Learn\\\\ASPNET_CORE\\\\CleanCityApp\\\\src\\\\pages\" -Directory)",
+      "Bash(Select-Object Name)"
+    ]
+  }
+}

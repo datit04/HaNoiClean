@@ -18,7 +18,7 @@ const DEFAULT_FORM = {
   isActive: true,
 }
 
-const PAGE_SIZE = 4
+const PAGE_SIZE = 6
 
 const ICON_OPTIONS = [
   'recycling', 'warning', 'architecture', 'delete',
@@ -219,9 +219,6 @@ export default function CategoryManager() {
           <h1 className="text-4xl font-extrabold text-on-surface tracking-tight font-headline">
             Quản lý Danh mục
           </h1>
-          <p className="text-on-surface-variant max-w-lg">
-            Cấu hình và phân loại các vấn đề đô thị để tối ưu hóa quy trình tiếp nhận và xử lý phản ánh.
-          </p>
         </div>
         <div className="flex items-center gap-3">
           <div className="bg-surface-container-low rounded-xl px-4 py-2 flex items-center gap-2 border border-outline-variant/10 shadow-sm focus-within:ring-2 ring-primary/20 transition-all">
@@ -244,41 +241,6 @@ export default function CategoryManager() {
         </div>
       </div>
 
-      {/* Bento Grid Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-        <div className="bg-surface-container-low p-6 rounded-2xl shadow-sm flex flex-col justify-between h-32">
-          <span className="text-sm font-semibold text-on-surface-variant">Tổng số danh mục</span>
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold font-headline">{categories.length}</span>
-          </div>
-        </div>
-        <div className="bg-surface-container-low p-6 rounded-2xl shadow-sm flex flex-col justify-between h-32">
-          <span className="text-sm font-semibold text-on-surface-variant">Đang hoạt động</span>
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold font-headline">{activeCount}</span>
-            <span className="text-xs text-secondary font-bold">{activePercent}% tổng số</span>
-          </div>
-        </div>
-        <div className="bg-surface-container-low p-6 rounded-2xl shadow-sm flex flex-col justify-between h-32">
-          <span className="text-sm font-semibold text-on-surface-variant">Không hoạt động</span>
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold font-headline">{categories.length - activeCount}</span>
-            <span className="text-xs text-tertiary font-bold">Đã vô hiệu hóa</span>
-          </div>
-        </div>
-        <div className="bg-surface-container-highest p-6 rounded-2xl shadow-sm flex flex-col justify-between h-32 relative overflow-hidden">
-          <div className="relative z-10">
-            <span className="text-sm font-semibold text-primary">Danh mục đầu tiên</span>
-            <div className="flex items-baseline gap-2 mt-2">
-              <span className="text-2xl font-bold font-headline truncate">{hotCategory}</span>
-            </div>
-          </div>
-          <span className="material-symbols-outlined absolute -bottom-4 -right-4 text-[8rem] text-primary/5 select-none">
-            auto_graph
-          </span>
-        </div>
-      </div>
-
       {/* Error Banner */}
       {error && !showModal && (
         <div className="rounded-xl bg-error-container text-on-error-container px-4 py-3 text-sm font-medium">
@@ -295,19 +257,19 @@ export default function CategoryManager() {
       </SelectionBar>
 
       {/* Categories Data Table */}
-      <div className="bg-surface-container-lowest rounded-3xl shadow-[0_12px_32px_rgba(23,29,20,0.04)] overflow-hidden border border-outline-variant/5">
+      <div className="bg-surface rounded-3xl border border-outline-variant overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-sm">
             <thead>
-              <tr className="bg-surface-container-low/50">
-                <th className="px-4 py-5 w-10">
+              <tr className="border-b border-outline-variant bg-surface-container">
+                <th className="px-3 py-4 w-10">
                   <input type="checkbox" className="accent-primary w-4 h-4 cursor-pointer" checked={paginatedCategories.length > 0 && selectedIds.length === paginatedCategories.length} onChange={toggleSelectAll} />
                 </th>
-                <th className="px-8 py-5 text-xs font-bold uppercase tracking-wider text-on-surface-variant/70">STT</th>
-                <th className="px-8 py-5 text-xs font-bold uppercase tracking-wider text-on-surface-variant/70">Tên Danh Mục</th>
-                <th className="px-8 py-5 text-xs font-bold uppercase tracking-wider text-on-surface-variant/70">Icon &amp; Màu sắc</th>
-                <th className="px-8 py-5 text-xs font-bold uppercase tracking-wider text-on-surface-variant/70 text-center">Trạng thái</th>
-                <th className="px-8 py-5 text-xs font-bold uppercase tracking-wider text-on-surface-variant/70 text-right">Thao tác</th>
+                <th className="px-5 py-4 text-left font-semibold text-on-surface-variant">STT</th>
+                <th className="px-5 py-4 text-left font-semibold text-on-surface-variant">Tên Danh Mục</th>
+                <th className="px-5 py-4 text-left font-semibold text-on-surface-variant">Icon &amp; Màu sắc</th>
+                <th className="px-5 py-4 text-center font-semibold text-on-surface-variant">Trạng thái</th>
+                <th className="px-5 py-4 text-right font-semibold text-on-surface-variant">Thao tác</th>
               </tr>
             </thead>
             <tbody>
@@ -325,20 +287,20 @@ export default function CategoryManager() {
                 </tr>
               ) : (
                 paginatedCategories.map((category, idx) => (
-                  <tr key={category.id} className={`group hover:bg-surface-container-low/30 transition-colors ${selectedIds.includes(category.id) ? 'bg-primary-fixed/30' : ''}`}>
-                    <td className="px-4 py-6 w-10">
+                  <tr key={category.id} className={`border-b border-outline-variant/50 hover:bg-surface-container/50 transition-colors ${selectedIds.includes(category.id) ? 'bg-primary-fixed/30' : ''}`}>
+                    <td className="px-3 py-4 w-10">
                       <input type="checkbox" className="accent-primary w-4 h-4 cursor-pointer" checked={selectedIds.includes(category.id)} onChange={() => toggleSelect(category.id)} />
                     </td>
-                    <td className="px-8 py-6 text-sm font-medium text-on-surface-variant">
+                    <td className="px-5 py-4 text-xs text-on-surface-variant">
                       {(currentPage - 1) * PAGE_SIZE + idx + 1}
                     </td>
-                    <td className="px-8 py-6">
+                    <td className="px-5 py-4">
                       <div className="flex flex-col">
                         <span className="text-base font-bold text-on-surface">{category.name}</span>
                         <span className="text-xs text-on-surface-variant/60">{category.icon || 'category'}</span>
                       </div>
                     </td>
-                    <td className="px-8 py-6">
+                    <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
                         <div
                           className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm"
@@ -356,7 +318,7 @@ export default function CategoryManager() {
                         </span>
                       </div>
                     </td>
-                    <td className="px-8 py-6 text-center">
+                    <td className="px-5 py-4 text-center">
                       {category.isActive ? (
                         <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-primary-fixed text-on-primary-fixed">
                           <span className="w-1.5 h-1.5 rounded-full bg-primary mr-2" />
@@ -369,11 +331,11 @@ export default function CategoryManager() {
                         </span>
                       )}
                     </td>
-                    <td className="px-8 py-6 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="px-5 py-4 text-right">
+                      <div className="flex items-center justify-end gap-1">
                         <button
                           onClick={() => openEdit(category)}
-                          className="p-2 hover:bg-surface-container-high rounded-lg text-secondary transition-colors"
+                          className="p-2 rounded-xl hover:bg-primary/10 text-primary transition-colors"
                           title="Chỉnh sửa"
                         >
                           <span className="material-symbols-outlined">edit</span>
@@ -381,7 +343,7 @@ export default function CategoryManager() {
                         <button
                           onClick={() => handleToggleActive(category)}
                           disabled={submitting}
-                          className="p-2 hover:bg-error-container/20 rounded-lg text-error transition-colors disabled:opacity-50"
+                          className="p-2 rounded-xl hover:bg-error/10 text-error transition-colors disabled:opacity-50"
                           title={category.isActive ? 'Vô hiệu hóa' : 'Kích hoạt'}
                         >
                           <span className="material-symbols-outlined">
@@ -391,7 +353,7 @@ export default function CategoryManager() {
                         <button
                           onClick={() => handleDelete(category)}
                           disabled={submitting}
-                          className="p-2 hover:bg-error-container/20 rounded-lg text-error transition-colors disabled:opacity-50"
+                          className="p-2 rounded-xl hover:bg-error/10 text-error transition-colors disabled:opacity-50"
                           title="Xóa"
                         >
                           <span className="material-symbols-outlined">delete</span>
@@ -406,32 +368,6 @@ export default function CategoryManager() {
         </div>
 
         <Pagination currentPage={currentPage} totalPages={totalPages} totalRecords={filteredCategories.length} label="danh mục" onPageChange={setPage} />
-      </div>
-
-      {/* Contextual Help Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-8">
-        <div className="md:col-span-2 relative overflow-hidden rounded-3xl bg-primary h-64 p-8 flex flex-col justify-center text-on-primary">
-          <div className="relative z-10 space-y-4">
-            <h3 className="text-2xl font-bold font-headline">Tối ưu hóa quy trình phân loại</h3>
-            <p className="max-w-md opacity-90 text-sm leading-relaxed">
-              Sử dụng hệ thống màu sắc tương phản cao cho các danh mục nguy cấp để đội ngũ hiện trường có thể nhận diện nhanh chóng trên bản đồ điều hành.
-            </p>
-          </div>
-          <span className="material-symbols-outlined absolute -right-8 -bottom-8 text-[15rem] opacity-10 rotate-12 select-none">
-            settings_suggest
-          </span>
-        </div>
-        <div className="bg-surface-container-high rounded-3xl p-8 flex flex-col gap-6">
-          <div className="w-12 h-12 rounded-2xl bg-secondary-container flex items-center justify-center">
-            <span className="material-symbols-outlined text-on-secondary-container">lightbulb</span>
-          </div>
-          <div className="space-y-2">
-            <h4 className="font-bold text-on-surface">Mẹo nhỏ</h4>
-            <p className="text-xs text-on-surface-variant leading-relaxed">
-              Bạn có thể thay đổi icon và màu sắc của mỗi danh mục bằng cách nhấn vào nút chỉnh sửa trên từng hàng trong bảng.
-            </p>
-          </div>
-        </div>
       </div>
 
       {/* Modal */}
@@ -465,7 +401,7 @@ export default function CategoryManager() {
             </div>
 
             {/* Modal Content (Scrollable) */}
-            <div className="flex-1 overflow-y-auto p-8 pt-4 space-y-8">
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-8 pt-4 space-y-8">
               {/* Section 1: Name */}
               <div className="space-y-3">
                 <label className="block text-sm font-semibold text-on-surface-variant tracking-wider uppercase">

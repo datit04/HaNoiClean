@@ -50,5 +50,6 @@ namespace KnowledgeSpace.BackendServer.Data
 		public DbSet<TrashBin> TrashBins { get; set; }
 		public DbSet<UserGreenPoint> UserGreenPoints { get; set; }
 		public DbSet<ReportProgress> ReportProgresses { get; set; }
+		public DbSet<ReportComment> ReportComments { get; set; }
 	}
 }

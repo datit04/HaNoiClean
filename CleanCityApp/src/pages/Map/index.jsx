@@ -6,6 +6,7 @@ import FilterPanel from './components/FilterPanel'
 import MapCanvas from './components/MapCanvas'
 import StatsBar from './components/StatsBar'
 import MapLeaderboard from './components/MapLeaderboard'
+import ReportDetailSidebar from './components/ReportDetailSidebar'
 import CreateReportModal from '../Staff/components/CreateReportModal'
 import { useMapMarkers } from '../../hooks/useMapMarkers'
 import { useHanoiWards } from '../../hooks/useHanoiWards'
@@ -36,6 +37,8 @@ export default function MapPage() {
   const navigate = useNavigate()
   const { isAuthenticated } = useAuth()
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [selectedReportId, setSelectedReportId] = useState(null)
+  const [filterPanelOpen, setFilterPanelOpen] = useState(false)
   const [filters, setFilters] = useState({
     wardId: '',
     categoryIds: [],
@@ -144,16 +147,19 @@ export default function MapPage() {
           onWardChange={handleWardChange}
           onCategoryToggle={handleCategoryToggle}
           onNewReport={handleNewReport}
+          open={filterPanelOpen}
+          onClose={() => setFilterPanelOpen(false)}
         />
 
         {/* Map area */}
-        <main className="ml-80 w-full relative bg-surface">
+        <main className="md:ml-80 w-full relative bg-surface">
           <MapCanvas
             ref={mapActionsRef}
             markers={markers.length > 0 ? markers : undefined}
             selectedWardGeoJson={effectiveWardGeoJson}
             selectedWardBounds={effectiveWardBounds}
             selectedWardKey={filters.wardId}
+            onViewDetail={(id) => setSelectedReportId(id)}
           />
 
           {(wardBoundaryLoading || wardBoundaryError) && (
@@ -164,6 +170,14 @@ export default function MapPage() {
 
           {/* Map controls */}
           <div className="absolute top-6 right-6 flex flex-col gap-2 z-10">
+            {/* Mobile filter toggle */}
+            <button
+              onClick={() => setFilterPanelOpen((v) => !v)}
+              className="md:hidden map-control p-3"
+              aria-label="Mở bộ lọc"
+            >
+              <span className="material-symbols-outlined">tune</span>
+            </button>
             <div className="map-control p-1 flex flex-col">
               <button
                 onClick={() => mapActionsRef.current?.zoomIn()}
@@ -196,6 +210,13 @@ export default function MapPage() {
           <MapLeaderboard />
 
           <StatsBar totalReports={stats.total} resolvedPercent={stats.resolvedPercent} topDistrict={stats.topWard} />
+
+          {selectedReportId && (
+            <ReportDetailSidebar
+              reportId={selectedReportId}
+              onClose={() => setSelectedReportId(null)}
+            />
+          )}
         </main>
       </div>
 

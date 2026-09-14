@@ -59,15 +59,6 @@ namespace KnowledgeSpace.BackendServer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<double?>("AiConfidence")
-                        .HasColumnType("float");
-
-                    b.Property<int?>("AiSuggestedCategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("AssignedTeamId")
-                        .HasColumnType("int");
-
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
@@ -100,6 +91,9 @@ namespace KnowledgeSpace.BackendServer.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<int?>("TeamId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -113,15 +107,60 @@ namespace KnowledgeSpace.BackendServer.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AssignedTeamId");
-
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("TeamId");
 
                     b.HasIndex("UserId");
 
                     b.HasIndex("WardId");
 
                     b.ToTable("Reports");
+                });
+
+            modelBuilder.Entity("KnowledgeSpace.BackendServer.Data.Entities.ReportComment", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<long?>("ParentCommentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ReportId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentCommentId");
+
+                    b.HasIndex("ReportId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ReportComments");
                 });
 
             modelBuilder.Entity("KnowledgeSpace.BackendServer.Data.Entities.ReportProgress", b =>
@@ -131,6 +170,10 @@ namespace KnowledgeSpace.BackendServer.Migrations
                         .HasColumnType("bigint");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("ImageAfterUrl")
                         .HasMaxLength(500)
@@ -174,15 +217,20 @@ namespace KnowledgeSpace.BackendServer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LeaderId")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
+                    b.Property<int?>("Members")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -194,7 +242,7 @@ namespace KnowledgeSpace.BackendServer.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LeaderId");
+                    b.HasIndex("CategoryId");
 
                     b.HasIndex("WardId");
 
@@ -556,15 +604,15 @@ namespace KnowledgeSpace.BackendServer.Migrations
 
             modelBuilder.Entity("KnowledgeSpace.BackendServer.Data.Entities.Report", b =>
                 {
-                    b.HasOne("KnowledgeSpace.BackendServer.Data.Entities.Team", "AssignedTeam")
-                        .WithMany()
-                        .HasForeignKey("AssignedTeamId");
-
                     b.HasOne("KnowledgeSpace.BackendServer.Data.Entities.Category", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("KnowledgeSpace.BackendServer.Data.Entities.Team", "Team")
+                        .WithMany()
+                        .HasForeignKey("TeamId");
 
                     b.HasOne("KnowledgeSpace.BackendServer.Data.Entities.User", "User")
                         .WithMany()
@@ -576,13 +624,38 @@ namespace KnowledgeSpace.BackendServer.Migrations
                         .WithMany()
                         .HasForeignKey("WardId");
 
-                    b.Navigation("AssignedTeam");
-
                     b.Navigation("Category");
+
+                    b.Navigation("Team");
 
                     b.Navigation("User");
 
                     b.Navigation("Ward");
+                });
+
+            modelBuilder.Entity("KnowledgeSpace.BackendServer.Data.Entities.ReportComment", b =>
+                {
+                    b.HasOne("KnowledgeSpace.BackendServer.Data.Entities.ReportComment", "ParentComment")
+                        .WithMany("Replies")
+                        .HasForeignKey("ParentCommentId");
+
+                    b.HasOne("KnowledgeSpace.BackendServer.Data.Entities.Report", "Report")
+                        .WithMany()
+                        .HasForeignKey("ReportId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("KnowledgeSpace.BackendServer.Data.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ParentComment");
+
+                    b.Navigation("Report");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("KnowledgeSpace.BackendServer.Data.Entities.ReportProgress", b =>
@@ -604,15 +677,15 @@ namespace KnowledgeSpace.BackendServer.Migrations
 
             modelBuilder.Entity("KnowledgeSpace.BackendServer.Data.Entities.Team", b =>
                 {
-                    b.HasOne("KnowledgeSpace.BackendServer.Data.Entities.User", "Leader")
+                    b.HasOne("KnowledgeSpace.BackendServer.Data.Entities.Category", "Category")
                         .WithMany()
-                        .HasForeignKey("LeaderId");
+                        .HasForeignKey("CategoryId");
 
                     b.HasOne("KnowledgeSpace.BackendServer.Data.Entities.Ward", "Ward")
                         .WithMany()
                         .HasForeignKey("WardId");
 
-                    b.Navigation("Leader");
+                    b.Navigation("Category");
 
                     b.Navigation("Ward");
                 });
@@ -709,6 +782,11 @@ namespace KnowledgeSpace.BackendServer.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("KnowledgeSpace.BackendServer.Data.Entities.ReportComment", b =>
+                {
+                    b.Navigation("Replies");
                 });
 #pragma warning restore 612, 618
         }

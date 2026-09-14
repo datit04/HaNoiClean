@@ -19,7 +19,7 @@ export default function DispatchModal({ report, onClose, onSuccess }) {
   const [teams, setTeams] = useState([])
   const [selectedTeamId, setSelectedTeamId] = useState('')
   const [selectedStatus, setSelectedStatus] = useState(ReportStatus.Received)
-  const [note, setNote] = useState('')
+  const [description, setDescription] = useState('')
   const [imageAfterFile, setImageAfterFile] = useState(null)
   const [imageAfterPreview, setImageAfterPreview] = useState(null)
   const imageAfterRef = useRef(null)
@@ -31,11 +31,15 @@ export default function DispatchModal({ report, onClose, onSuccess }) {
       const res = await getTeams()
       const data = res.data
       const list = Array.isArray(data) ? data : Array.isArray(data?.items) ? data.items : []
-      setTeams(list.filter((t) => t.status === 'active' || t.isActive))
+      setTeams(
+        list.filter(
+          (t) => (t.status === 'active' || t.isActive) && t.wardId === report.wardId
+        )
+      )
     } catch {
       // silent
     }
-  }, [])
+  }, [report.wardId])
 
   useEffect(() => {
     loadTeams()
@@ -75,12 +79,15 @@ export default function DispatchModal({ report, onClose, onSuccess }) {
           setSubmitting(false)
           return
         }
-        await assignTeam(report.id, { teamId: Number(selectedTeamId) })
+        await assignTeam(report.id, {
+          teamId: Number(selectedTeamId),
+          description: description.trim() || undefined,
+        })
       } else {
         // Update report status for other transitions
         await updateReportStatus(report.id, {
           status: selectedStatus,
-          note: note.trim() || undefined,
+          description: description.trim() || undefined,
           imageAfter: imageAfterFile || undefined,
         })
       }
@@ -134,7 +141,7 @@ export default function DispatchModal({ report, onClose, onSuccess }) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-8 pt-4 space-y-8">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-8 pt-4 space-y-8">
           {/* Report Summary */}
           <div className="bg-surface-container-low p-6 rounded-2xl flex gap-5">
             {report.imageUrl && (
@@ -216,7 +223,7 @@ export default function DispatchModal({ report, onClose, onSuccess }) {
               </select>
               {teams.length === 0 && (
                 <p className="text-xs text-on-surface-variant px-1">
-                  Chưa có đội nào đang hoạt động. Hãy tạo đội trong mục Teams.
+                  Chưa có đội nào thuộc <span className="font-semibold">{report.location}</span> đang hoạt động. Hãy tạo đội trong mục Teams.
                 </p>
               )}
             </div>
@@ -263,14 +270,14 @@ export default function DispatchModal({ report, onClose, onSuccess }) {
             </div>
           )}
 
-          {/* Note */}
+          {/* Description */}
           <div className="space-y-3">
-            <label className="text-sm font-bold text-tertiary px-1">Ghi chú xử lý</label>
+            <label className="text-sm font-bold text-tertiary px-1">Ghi chú trạng thái</label>
             <textarea
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               className="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary text-on-surface placeholder:text-outline-variant"
-              placeholder="Ghi chú cho đội xử lý hoặc lý do từ chối..."
+              placeholder="Mô tả chi tiết tình trạng xử lý, lý do từ chối..."
               rows={3}
             />
           </div>

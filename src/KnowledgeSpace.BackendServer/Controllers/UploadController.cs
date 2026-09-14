@@ -1,4 +1,4 @@
-using KnowledgeSpace.BackendServer.Services;
+﻿using KnowledgeSpace.BackendServer.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KnowledgeSpace.BackendServer.Controllers
@@ -18,12 +18,12 @@ namespace KnowledgeSpace.BackendServer.Controllers
         public async Task<IActionResult> UploadFile(IFormFile file)
         {
             if (file == null || file.Length == 0)
-                return BadRequest(new { message = "File kh�ng h?p l?" });
+                return BadRequest(new { message = "File không hợp lệ" });
 
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp", ".mp4" };
             var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
             if (!allowedExtensions.Contains(extension))
-                return BadRequest(new { message = "??nh d?ng file kh�ng ???c h? tr?" });
+                return BadRequest(new { message = "Định dạng file không được hỗ trợ" });
 
             var fileName = $"{DateTime.Now:yyyyMMddHHmmss}_{Guid.NewGuid():N}{extension}";
 

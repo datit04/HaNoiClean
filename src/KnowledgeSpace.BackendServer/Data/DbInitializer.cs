@@ -1,5 +1,8 @@
+using KnowledgeSpace.BackendServer.Constants;
+using KnowledgeSpace.BackendServer.Constants;
 using KnowledgeSpace.BackendServer.Data.Entities;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace KnowledgeSpace.BackendServer.Data
 {
@@ -8,8 +11,6 @@ namespace KnowledgeSpace.BackendServer.Data
 		private readonly ApplicationDbContext _context;
 		private readonly UserManager<User> _userManager;
 		private readonly RoleManager<IdentityRole> _roleManager;
-		private readonly string AdminRoleName = "Admin";
-		private readonly string UserRoleName = "Member";
 
 		public DbInitializer(ApplicationDbContext context,
 		  UserManager<User> userManager,
@@ -22,27 +23,44 @@ namespace KnowledgeSpace.BackendServer.Data
 
 		public async Task Seed()
 		{
-			#region Quy?n
+			#region Roles
 
 			if (!_roleManager.Roles.Any())
 			{
 				await _roleManager.CreateAsync(new IdentityRole
 				{
-					Id = AdminRoleName,
-					Name = AdminRoleName,
-					NormalizedName = AdminRoleName.ToUpper(),
+					Id = SystemConstants.Roles.Admin,
+					Name = SystemConstants.Roles.Admin,
+					NormalizedName = SystemConstants.Roles.Admin.ToUpper(),
 				});
 				await _roleManager.CreateAsync(new IdentityRole
 				{
-					Id = UserRoleName,
-					Name = UserRoleName,
-					NormalizedName = UserRoleName.ToUpper(),
+					Id = SystemConstants.Roles.Citizen,
+					Name = SystemConstants.Roles.Citizen,
+					NormalizedName = SystemConstants.Roles.Citizen.ToUpper(),
 				});
 			}
 
-			#endregion Quy?n
+			#endregion Roles
 
-			#region Ngu?i dùng
+			#region Permissions (Claims)
+
+			// Seed permissions cho Admin role
+			if (!_context.RoleClaims.Any())
+			{
+				var adminRole = await _roleManager.FindByNameAsync(SystemConstants.Roles.Admin);
+				if (adminRole != null)
+				{
+					foreach (var permission in Permissions.All)
+					{
+						await _roleManager.AddClaimAsync(adminRole, new Claim("Permission", permission.Id));
+					}
+				}
+			}
+
+			#endregion Permissions
+
+			#region Users
 
 			if (!_userManager.Users.Any())
 			{
@@ -57,11 +75,11 @@ namespace KnowledgeSpace.BackendServer.Data
 				if (result.Succeeded)
 				{
 					var user = await _userManager.FindByNameAsync("admin");
-					await _userManager.AddToRoleAsync(user, AdminRoleName);
+					await _userManager.AddToRoleAsync(user, SystemConstants.Roles.Admin);
 				}
 			}
 
-			#endregion Ngu?i dùng
+			#endregion Users
 
 			await _context.SaveChangesAsync();
 		}

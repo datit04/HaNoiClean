@@ -7,28 +7,8 @@ import CreateReportModal from '../Staff/components/CreateReportModal'
 import { useMyReports } from '../../hooks/useMyReports'
 import { getMyGreenPoints } from '../../services/greenPointApi'
 import { useAuth } from '../../contexts/AuthContext'
-
-// Placeholder notifications — replace with a dedicated hook + service when the API is ready
-const MOCK_NOTIFICATIONS = [
-  {
-    id: 1,
-    type: 'status',
-    timeAgo: '2 giờ trước',
-    message: "Yêu cầu 'Phố Hàng Trống' đã được tiếp nhận bởi đội vệ sinh môi trường.",
-  },
-  {
-    id: 2,
-    type: 'reward',
-    timeAgo: '1 ngày trước',
-    message: 'Chúc mừng! Bạn nhận được +50 điểm xanh vì đóng góp tích cực.',
-  },
-  {
-    id: 3,
-    type: 'system',
-    timeAgo: '3 ngày trước',
-    message: 'Chào mừng bạn gia nhập Hanoi CleanCity.',
-  },
-]
+import { useNotifications } from '../../hooks/useNotifications'
+import { useTranslation } from 'react-i18next'
 
 export default function CitizenPage() {
   const { user } = useAuth()
@@ -36,6 +16,8 @@ export default function CitizenPage() {
   const [isOpen, setIsOpen] = useState(false)
   const [greenPoints, setGreenPoints] = useState(0)
   const [greenHistory, setGreenHistory] = useState([])
+  const { notifications, markRead } = useNotifications()
+  const { t } = useTranslation()
 
   useEffect(() => {
     getMyGreenPoints().then(res => {
@@ -59,10 +41,10 @@ export default function CitizenPage() {
           <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="space-y-2">
               <h1 className="text-4xl md:text-5xl font-black text-on-surface tracking-tight leading-none">
-                Xin chao, {user?.fullName || user?.userName || 'ban'}!
+                {t('citizen.greeting', { name: user?.fullName || user?.userName || '...' })}
               </h1>
               <p className="text-lg text-on-surface-variant font-medium">
-                Theo dõi đóng góp của bạn cho một Hà Nội Xanh.
+                {t('citizen.subtitle')}
               </p>
             </div>
             <button
@@ -75,7 +57,7 @@ export default function CitizenPage() {
               >
                 add_circle
               </span>
-              BÁO CÁO MỚI
+              {t('citizen.new_report_button')}
             </button>
           </header>
 
@@ -84,14 +66,14 @@ export default function CitizenPage() {
             {/* Report Feed */}
             <section className="md:col-span-8 space-y-8">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-primary">Báo cáo của tôi</h2>
+                <h2 className="text-2xl font-bold text-primary">{t('citizen.my_reports_title')}</h2>
                 <span className="text-sm font-semibold text-secondary px-3 py-1 bg-secondary-fixed rounded-full">
-                  Hiện có {reports.length} báo cáo
+                  {t('citizen.report_count', { count: reports.length })}
                 </span>
               </div>
 
               {loading ? (
-                <p className="text-on-surface-variant">Đang tải...</p>
+                <p className="text-on-surface-variant">{t('citizen.loading')}</p>
               ) : error ? (
                 <p className="text-error">{error}</p>
               ) : (
@@ -106,18 +88,17 @@ export default function CitizenPage() {
                 <div className="absolute -right-8 -top-8 w-32 h-32 bg-on-secondary-container/10 rounded-full blur-3xl group-hover:scale-150 transition-transform" />
                 <div className="relative z-10 space-y-4">
                   <span className="material-symbols-outlined text-5xl">qr_code_scanner</span>
-                  <h3 className="text-2xl font-black leading-tight">Quét mã QR Thùng rác</h3>
+                  <h3 className="text-2xl font-black leading-tight">{t('citizen.qr_title')}</h3>
                   <p className="text-sm font-medium opacity-80 leading-relaxed">
-                    Sử dụng camera để quét mã trên thùng rác thông minh để tích điểm xanh và báo
-                    cáo đầy rác ngay lập tức.
+                    {t('citizen.qr_desc')}
                   </p>
                   <button className="bg-on-secondary-container text-secondary-container w-full py-4 rounded-xl font-black tracking-tighter hover:opacity-90 transition-all">
-                    MỞ QUÉT MÃ
+                    {t('citizen.qr_button')}
                   </button>
                 </div>
               </div>
 
-              <NotificationSidebar notifications={MOCK_NOTIFICATIONS} />
+              <NotificationSidebar notifications={notifications} markRead={markRead} />
 
               {/* City Health Card */}
               <div className="bg-surface-container-highest rounded-[2rem] p-8 overflow-hidden relative h-48 flex items-end">
@@ -132,7 +113,7 @@ export default function CitizenPage() {
                 <div className="relative z-10 w-full flex justify-between items-end text-white">
                   <div>
                     <p className="text-xs font-bold tracking-widest uppercase opacity-80">
-                      Điểm xanh thành phố
+                      {t('citizen.green_points_label')}
                     </p>
                     <h4 className="text-3xl font-black">{greenPoints}</h4>
                   </div>

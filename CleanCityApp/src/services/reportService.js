@@ -149,12 +149,12 @@ export const createReport = (data) => {
 /**
  * POST /api/reports/:id/status — cập nhật trạng thái (multipart/form-data)
  * @param {number} id
- * @param {{ status: number, note?: string, imageAfter?: File | null }} data
+ * @param {{ status: number, description?: string, imageAfter?: File | null }} data
  */
 export const updateReportStatus = (id, data) => {
   const formData = new FormData()
   formData.append('status', data.status)
-  if (data.note) formData.append('note', data.note)
+  if (data.description) formData.append('description', data.description)
   if (data.imageAfter) formData.append('imageAfter', data.imageAfter)
   return api.post(`/reports/${id}/status`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
@@ -172,6 +172,16 @@ export const assignTeam = (id, data) => api.post(`/reports/${id}/assign`, data)
  * DELETE /api/reports/:id
  */
 export const deleteReport = (id) => api.delete(`/reports/${id}`)
+
+/**
+ * GET /api/reports/my-progress — toàn bộ lịch sử tiến trình của báo cáo user
+ */
+export const getMyReportsProgress = () => api.get('/reports/my-progress')
+
+/**
+ * GET /api/reports/my-current-statuses — trạng thái mới nhất của từng báo cáo
+ */
+export const getMyReportsCurrentStatuses = () => api.get('/reports/my-current-statuses')
 
 /**
  * POST /api/upload — upload image file, returns URL

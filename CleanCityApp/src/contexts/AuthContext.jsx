@@ -31,13 +31,20 @@ export function AuthProvider({ children }) {
             ? raw.result
             : []
       setPermissions(perms)
+      sessionStorage.setItem('permissions', JSON.stringify(perms))
     } catch (err) {
       console.error('[AuthContext] fetchPermissions failed:', err)
-      setPermissions([])
+      // Giữ lại permissions đã cache, không reset về []
     }
   }, [])
 
   useEffect(() => {
+    // Khôi phục permissions đã cache ngay lập tức để tránh flicker khi reload trang
+    const cached = sessionStorage.getItem('permissions')
+    if (cached) {
+      try { setPermissions(JSON.parse(cached)) } catch { /* ignore */ }
+    }
+
     const token = readAuthToken()
     if (token) {
       getProfile()
@@ -48,6 +55,7 @@ export function AuthProvider({ children }) {
         })
         .catch(() => {
           clearAuthSession()
+          sessionStorage.removeItem('permissions')
           setUser(null)
           setIsAuthenticated(false)
           setPermissions([])
@@ -57,6 +65,7 @@ export function AuthProvider({ children }) {
       setIsAuthenticated(false)
       setUser(null)
       setPermissions([])
+      sessionStorage.removeItem('permissions')
       setLoading(false)
     }
   }, [])
@@ -120,6 +129,7 @@ export function AuthProvider({ children }) {
       // Some backends do not implement an explicit logout endpoint.
     }
     clearAuthSession()
+    sessionStorage.removeItem('permissions')
     setUser(null)
     setIsAuthenticated(false)
     setPermissions([])

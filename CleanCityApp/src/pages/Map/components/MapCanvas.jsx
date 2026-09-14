@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
-import { MapContainer, TileLayer, Marker, Popup, Polygon, GeoJSON, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup, Polygon, GeoJSON, Circle, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { useHanoiBoundary } from '../../../hooks/useHanoiBoundary'
@@ -87,13 +87,27 @@ function WardBoundaryZoom({ bounds }) {
   return null
 }
 
+const userLocationIcon = L.divIcon({
+  html: `<div style="
+    width:18px;height:18px;
+    background:#2563eb;
+    border:3px solid #fff;
+    border-radius:50%;
+    box-shadow:0 0 0 2px #2563eb55;
+  "></div>`,
+  className: '',
+  iconSize: [18, 18],
+  iconAnchor: [9, 9],
+})
+
 const MapCanvas = forwardRef(function MapCanvas(
-  { markers = [], selectedWardGeoJson = null, selectedWardBounds = null, selectedWardKey = '' },
+  { markers = [], selectedWardGeoJson = null, selectedWardBounds = null, selectedWardKey = '', onViewDetail },
   ref
 ) {
   const { ring: hanoiBoundaryRing, bounds: hanoiBounds } = useHanoiBoundary()
   const mapRef = useRef(null)
   const [tileSet, setTileSet] = useState('default')
+  const [userLocation, setUserLocation] = useState(null)
 
   const activeBounds = hanoiBounds || FALLBACK_HANOI_BOUNDS
   const activeBoundaryRing = hanoiBoundaryRing || HANOI_POLYGON
@@ -111,7 +125,9 @@ const MapCanvas = forwardRef(function MapCanvas(
     flyToUser() {
       if (!navigator.geolocation) return
       navigator.geolocation.getCurrentPosition((position) => {
-        mapRef.current?.flyTo([position.coords.latitude, position.coords.longitude], 15)
+        const { latitude, longitude, accuracy } = position.coords
+        setUserLocation({ lat: latitude, lng: longitude, accuracy })
+        mapRef.current?.flyTo([latitude, longitude], 15)
       })
     },
     toggleTile() {
@@ -207,17 +223,47 @@ const MapCanvas = forwardRef(function MapCanvas(
           />
         )}
 
+        {userLocation && (
+          <>
+            <Circle
+              center={[userLocation.lat, userLocation.lng]}
+              radius={userLocation.accuracy}
+              pathOptions={{
+                color: '#2563eb',
+                fillColor: '#2563eb',
+                fillOpacity: 0.12,
+                weight: 1.5,
+                opacity: 0.5,
+              }}
+            />
+            <Marker
+              position={[userLocation.lat, userLocation.lng]}
+              icon={userLocationIcon}
+              zIndexOffset={1000}
+            />
+          </>
+        )}
+
         {sanitizedMarkers.map((marker) => (
           <Marker
             key={marker.id}
             position={[marker.lat, marker.lng]}
             icon={createMarkerIcon(marker.status, marker.categoryIcon)}
           >
-            <Popup>
-              <div className="space-y-1">
+            <Popup minWidth={180}>
+              <div className="space-y-1.5">
                 <div className="text-xs font-bold uppercase text-tertiary">{marker.category}</div>
-                <div className="font-bold text-sm">{marker.title}</div>
+                <div className="font-bold text-sm leading-snug">{marker.title}</div>
                 <div className="text-xs text-on-surface-variant">{marker.location}</div>
+                {onViewDetail && (
+                  <button
+                    onClick={() => onViewDetail(marker.id)}
+                    className="mt-1 w-full flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-primary text-on-primary hover:opacity-90 transition-opacity"
+                  >
+                    <span className="material-symbols-outlined text-sm">open_in_new</span>
+                    Xem chi tiết
+                  </button>
+                )}
               </div>
             </Popup>
           </Marker>

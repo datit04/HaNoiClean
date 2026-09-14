@@ -1,10 +1,11 @@
-﻿using KnowledgeSpace.BackendServer.Constants;
+﻿using KnowledgeSpace.BackendServer.Authorization;
 using KnowledgeSpace.BackendServer.Data;
 using KnowledgeSpace.BackendServer.Data.Entities;
 using KnowledgeSpace.BackendServer.Helpers;
 using KnowledgeSpace.BackendServer.Services;
 using KnowledgeSpace.ViewModels;
 using KnowledgeSpace.ViewModels.Systems;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -30,13 +31,13 @@ namespace KnowledgeSpace.BackendServer.Controllers
         }
 
         [HttpPost]
-        //[ClaimRequirement(FunctionCode.ADMIN_USER, CommandCode.CREATE)]
+        [Permission("Users.Create")]
         [ApiValidationFilter]
         public async Task<IActionResult> PostUser(UserCreateRequest request)
         {
             var roleName = !string.IsNullOrEmpty(request.RoleId)
                 ? request.RoleId
-                : SystemConstants.Roles.Citizen;
+                : "User";
 
             var role = await _roleManager.FindByIdAsync(roleName);
             if (role == null)
@@ -65,7 +66,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
         }
 
         [HttpGet]
-        //[ClaimRequirement(FunctionCode.ADMIN_USER, CommandCode.VIEW)]
+        [Permission("Users.View")]
         public async Task<IActionResult> GetUsers()
         {
             var users = _userManager.Users;
@@ -90,7 +91,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
         }
 
         [HttpGet("filter")]
-        //[ClaimRequirement(FunctionCode.ADMIN_USER, CommandCode.VIEW)]
+        [Permission("Users.View")]
         public async Task<IActionResult> GetUsersPaging(string filter, int pageIndex, int pageSize)
         {
             var query = _userManager.Users;
@@ -130,7 +131,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
         }
 
         [HttpGet("{id}")]
-        //[ClaimRequirement(FunctionCode.ADMIN_USER, CommandCode.VIEW)]
+        [Permission("Users.View")]
         public async Task<IActionResult> GetById(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -156,8 +157,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
         }
 
         [HttpPut("{id}")]
-        //[ClaimRequirement(FunctionCode.ADMIN_USER, CommandCode.UPDATE)]
-        [Consumes("multipart/form-data")]
+        [Permission("Users.Update")]
         public async Task<IActionResult> PutUser(string id, [FromForm] UserUpdateRequest request)
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -173,18 +173,15 @@ namespace KnowledgeSpace.BackendServer.Controllers
 
             if (request.Avatar != null && request.Avatar.Length > 0)
             {
-                var allowedExtensions = new string[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
                 var extension = Path.GetExtension(request.Avatar.FileName).ToLowerInvariant();
-                if (!allowedExtensions.Contains(extension))
-                    return BadRequest(new ApiBadRequestResponse("Định dạng ảnh không được hỗ trợ"));
 
                 if (!string.IsNullOrEmpty(user.AvatarUrl))
                 {
-                    var oldFileName = Path.GetFileName(user.AvatarUrl);
-                    await _storageService.DeleteFileAsync(oldFileName);
+                    var oldObjectName = ExtractObjectName(user.AvatarUrl);
+                    await _storageService.DeleteFileAsync(oldObjectName);
                 }
 
-                var fileName = $"avatar_{user.Id}_{DateTime.Now:yyyyMMddHHmmss}{extension}";
+                var fileName = $"avatars/avatar_{user.Id}_{DateTime.Now:yyyyMMddHHmmss}{extension}";
                 await using var stream = request.Avatar.OpenReadStream();
                 await _storageService.SaveFileAsync(stream, fileName);
                 user.AvatarUrl = _storageService.GetFileUrl(fileName);
@@ -219,8 +216,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
         }
 
         [HttpPut("{id}/change-password")]
-        //[ClaimRequirement(FunctionCode.ADMIN_USER, CommandCode.UPDATE)]
-        [ApiValidationFilter]
+        [Permission("Users.Update")]
         public async Task<IActionResult> PutUserPassword(string id, [FromBody] UserPasswordChangeRequest request)
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -237,12 +233,22 @@ namespace KnowledgeSpace.BackendServer.Controllers
         }
 
         [HttpDelete("{id}")]
-        //[ClaimRequirement(FunctionCode.ADMIN_USER, CommandCode.DELETE)]
+        [Permission("Users.Delete")]
         public async Task<IActionResult> DeleteUser(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
                 return NotFound();
+
+            var userReports = _context.Reports.Where(r => r.UserId == id).Select(r => r.Id).ToList();
+
+            _context.ReportProgresses.RemoveRange(
+                _context.ReportProgresses.Where(rp => userReports.Contains(rp.ReportId) || rp.UpdatedBy == id));
+            _context.UserGreenPoints.RemoveRange(
+                _context.UserGreenPoints.Where(g => g.UserId == id));
+            _context.Reports.RemoveRange(
+                _context.Reports.Where(r => r.UserId == id));
+            await _context.SaveChangesAsync();
 
             var result = await _userManager.DeleteAsync(user);
 
@@ -263,8 +269,22 @@ namespace KnowledgeSpace.BackendServer.Controllers
             return BadRequest(new ApiBadRequestResponse(result));
         }
 
+        private static string ExtractObjectName(string fileUrl)
+        {
+            // MinIO URL: http://host:port/bucket/folder/file.jpg -> folder/file.jpg
+            // Local URL: /user-attachments/file.jpg -> file.jpg
+            if (fileUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            {
+                var uri = new Uri(fileUrl);
+                // Remove leading '/' and bucket name segment
+                var segments = uri.AbsolutePath.TrimStart('/').Split('/', 2);
+                return segments.Length > 1 ? segments[1] : segments[0];
+            }
+            return Path.GetFileName(fileUrl);
+        }
+
         [HttpGet("{userId}/roles")]
-        //[ClaimRequirement(FunctionCode.ADMIN_USER, CommandCode.VIEW)]
+        [Permission("Users.View")]
         public async Task<IActionResult> GetUserRoles(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
@@ -275,13 +295,9 @@ namespace KnowledgeSpace.BackendServer.Controllers
         }
 
         [HttpPost("{userId}/roles")]
-        //[ClaimRequirement(FunctionCode.ADMIN_USER, CommandCode.UPDATE)]
+        [Permission("Users.Update")]
         public async Task<IActionResult> PostRolesToUser(string userId, [FromBody] RoleAssignRequest request)
         {
-            if (request.RoleNames?.Length == 0)
-            {
-                return BadRequest(new ApiBadRequestResponse("Role names cannot empty"));
-            }
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
                 return NotFound(new ApiNotFoundResponse($"Cannot found user with id: {userId}"));
@@ -293,17 +309,9 @@ namespace KnowledgeSpace.BackendServer.Controllers
         }
 
         [HttpDelete("{userId}/roles")]
-        //[ClaimRequirement(FunctionCode.ADMIN_USER, CommandCode.VIEW)]
+        [Permission("Users.Update")]
         public async Task<IActionResult> RemoveRolesFromUser(string userId, [FromQuery] RoleAssignRequest request)
         {
-            if (request.RoleNames?.Length == 0)
-            {
-                return BadRequest(new ApiBadRequestResponse("Role names cannot empty"));
-            }
-            if (request.RoleNames.Length == 1 && request.RoleNames[0] == SystemConstants.Roles.Admin)
-            {
-                return BadRequest(new ApiBadRequestResponse($"Cannot remove {SystemConstants.Roles.Admin} role"));
-            }
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
                 return NotFound(new ApiNotFoundResponse($"Cannot found user with id: {userId}"));
